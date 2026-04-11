@@ -27,6 +27,10 @@ export const StateAnnotation = Annotation.Root({
     default: () => null,
     reducer: (_, b) => b,
   }),
+  draftVersion: Annotation<number>({
+    default: () => 0,
+    reducer: (_, b) => b,
+  }),
   // Set by interrupt return value — user's "approve" or feedback text
   userFeedback: Annotation<string | null>({
     default: () => null,

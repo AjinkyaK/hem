@@ -29,6 +29,7 @@ const baseState = {
   rawResumeInput: "My resume content",
   jobDetails: null,
   resumeDraft: null,
+  draftVersion: 0,
   userFeedback: null,
 };
 
