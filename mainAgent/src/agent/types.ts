@@ -7,7 +7,7 @@ export const JobDetailsSchema = z.object({
   requiredSkills: z.array(z.string()),
   preferredSkills: z.array(z.string()),
   responsibilities: z.array(z.string()),
-  experienceLevel: z.string(),
+  experienceLevel: z.enum(["entry", "mid", "senior", "staff", "principal", "executive", "unknown"]),
   keyThemes: z.array(z.string()),
 });
 
