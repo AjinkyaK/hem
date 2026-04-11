@@ -4,6 +4,7 @@ import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { interrupt } from "@langchain/langgraph";
 import { StateAnnotation } from "../state.js";
 import { tailorResumeSystemPrompt } from "../prompts/tailorResume.js";
+import { writeResumeDraft } from "../utils/writeResumeDraft.js";
 
 const model = new ChatAnthropic({
   model: "claude-3-5-haiku-20241022",
@@ -33,9 +34,11 @@ export const tailorResume = async (
     ? result.content
     : JSON.stringify(result.content);
 
-  // Pause execution and surface draft to the user.
-  // Returns the user's response when the graph is resumed via Command({ resume: "..." }).
-  const userFeedback = interrupt(draft) as string;
+  const filePath = writeResumeDraft(draft, state.jobDetails, 1);
 
-  return { resumeDraft: draft, userFeedback };
+  const userFeedback = interrupt(
+    `Draft written to: ${filePath}\n\nType 'approve' to finalize, or provide feedback to revise.`,
+  ) as string;
+
+  return { resumeDraft: draft, draftVersion: 1, userFeedback };
 };
