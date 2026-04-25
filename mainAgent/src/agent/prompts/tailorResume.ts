@@ -303,4 +303,5 @@ Now — and only now — write the tailored resume in markdown.
 
 ### Output format
 
+Both \`thinking\` and \`resume\` fields are required. Populate \`thinking\` with your full Phase 1 reasoning before writing the resume.
 Use the template sections shown above. Output ONLY the markdown resume in the \`resume\` field — no preamble, no commentary, no closing remarks.`;
