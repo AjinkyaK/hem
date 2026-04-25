@@ -143,6 +143,7 @@ describe("tailorResume node", () => {
     };
 
     await expect(tailorResume(state, {})).rejects.toThrow("rawResumeInput is empty");
+    expect(mockInvoke).not.toHaveBeenCalled();
   });
 
   it("throws when jobDetails is null", async () => {
@@ -159,5 +160,6 @@ describe("tailorResume node", () => {
     };
 
     await expect(tailorResume(state, {})).rejects.toThrow("jobDetails is null");
+    expect(mockInvoke).not.toHaveBeenCalled();
   });
 });
