@@ -1,4 +1,4 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import { TailorOutputSchema } from "../../src/agent/types.js";
 
 describe("TailorOutputSchema", () => {
@@ -46,5 +46,118 @@ describe("TailorOutputSchema", () => {
       resume: "",
     });
     expect(result.success).toBe(true);
+  });
+});
+
+// Mock writeResumeDraft to avoid filesystem writes
+jest.unstable_mockModule("../../src/agent/utils/writeResumeDraft.js", () => ({
+  writeResumeDraft: jest.fn(() => "/tmp/fake_draft_v1.md"),
+}));
+
+// Mock @langchain/langgraph's interrupt to return a fixed feedback value
+jest.unstable_mockModule("@langchain/langgraph", () => ({
+  interrupt: jest.fn(() => "approve"),
+}));
+
+// Mock ChatAnthropic so withStructuredOutput returns a model whose invoke
+// returns a fixed { thinking, resume } object
+const mockInvoke = jest.fn(async () => ({
+  thinking: "Phase 1 reasoning",
+  resume: "# Tailored Resume\n\n## Professional summary\n...",
+}));
+
+jest.unstable_mockModule("@langchain/anthropic", () => ({
+  ChatAnthropic: jest.fn().mockImplementation(() => ({
+    withStructuredOutput: jest.fn(() => ({
+      invoke: mockInvoke,
+    })),
+  })),
+}));
+
+describe("tailorResume node", () => {
+  beforeEach(() => {
+    mockInvoke.mockClear();
+  });
+
+  it("extracts the resume field from structured output and stores it as resumeDraft", async () => {
+    const { tailorResume } = await import("../../src/agent/nodes/tailorResume.js");
+
+    const state = {
+      messages: [],
+      rawJobInput: "raw job text",
+      rawResumeInput: "Original resume content",
+      jobDetails: {
+        title: "Senior Engineer",
+        company: "Acme",
+        requiredSkills: ["TypeScript"],
+        preferredSkills: [],
+        responsibilities: ["Build APIs"],
+        experienceLevel: "senior" as const,
+        keyThemes: ["reliability"],
+        locationRemotePolicy: "Remote",
+        industryDomain: "Fintech",
+        softSkills: [],
+        educationCertifications: [],
+        companyValuesCulture: [],
+        highPriorityKeywords: [],
+        atsKeywords: [],
+      },
+      resumeDraft: null,
+      draftVersion: 0,
+      userFeedback: null,
+    };
+
+    const result = await tailorResume(state, {});
+    expect(result.resumeDraft).toBe("# Tailored Resume\n\n## Professional summary\n...");
+    expect(result.draftVersion).toBe(1);
+    expect(result.userFeedback).toBe("approve");
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws when rawResumeInput is empty", async () => {
+    const { tailorResume } = await import("../../src/agent/nodes/tailorResume.js");
+
+    const state = {
+      messages: [],
+      rawJobInput: "raw job text",
+      rawResumeInput: "",
+      jobDetails: {
+        title: "Senior Engineer",
+        company: "Acme",
+        requiredSkills: [],
+        preferredSkills: [],
+        responsibilities: [],
+        experienceLevel: "senior" as const,
+        keyThemes: [],
+        locationRemotePolicy: "Remote",
+        industryDomain: "Fintech",
+        softSkills: [],
+        educationCertifications: [],
+        companyValuesCulture: [],
+        highPriorityKeywords: [],
+        atsKeywords: [],
+      },
+      resumeDraft: null,
+      draftVersion: 0,
+      userFeedback: null,
+    };
+
+    await expect(tailorResume(state, {})).rejects.toThrow("rawResumeInput is empty");
+  });
+
+  it("throws when jobDetails is null", async () => {
+    const { tailorResume } = await import("../../src/agent/nodes/tailorResume.js");
+
+    const state = {
+      messages: [],
+      rawJobInput: "raw job text",
+      rawResumeInput: "Original resume",
+      jobDetails: null,
+      resumeDraft: null,
+      draftVersion: 0,
+      userFeedback: null,
+    };
+
+    await expect(tailorResume(state, {})).rejects.toThrow("jobDetails is null");
   });
 });

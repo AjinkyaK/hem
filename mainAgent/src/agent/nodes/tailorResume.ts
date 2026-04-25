@@ -3,14 +3,9 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { interrupt } from "@langchain/langgraph";
 import { StateAnnotation } from "../state.js";
+import { TailorOutputSchema } from "../types.js";
 import { tailorResumeSystemPrompt } from "../prompts/tailorResume.js";
 import { writeResumeDraft } from "../utils/writeResumeDraft.js";
-
-const model = new ChatAnthropic({
-  model: "claude-3-5-haiku-20241022",
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  maxRetries: 2,
-});
 
 export const tailorResume = async (
   state: typeof StateAnnotation.State,
@@ -23,17 +18,20 @@ export const tailorResume = async (
     throw new Error("tailorResume: jobDetails is null");
   }
 
-  const result = await model.invoke([
+  const structuredModel = new ChatAnthropic({
+    model: "claude-3-5-haiku-20241022",
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    maxRetries: 2,
+  }).withStructuredOutput(TailorOutputSchema);
+
+  const result = await structuredModel.invoke([
     new SystemMessage(tailorResumeSystemPrompt),
     new HumanMessage(
       `Original Resume:\n${state.rawResumeInput}\n\nJob Details:\n${JSON.stringify(state.jobDetails, null, 2)}`,
     ),
   ]);
 
-  const draft = typeof result.content === "string"
-    ? result.content
-    : JSON.stringify(result.content);
-
+  const draft = result.resume;
   const filePath = writeResumeDraft(draft, state.jobDetails, 1);
 
   const userFeedback = interrupt(
