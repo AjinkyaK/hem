@@ -15,6 +15,13 @@ const jobDetails: JobDetails = {
   responsibilities: ["Build APIs"],
   experienceLevel: "senior",
   keyThemes: ["reliability"],
+  locationRemotePolicy: "Remote",
+  industryDomain: "Fintech",
+  softSkills: [],
+  educationCertifications: [],
+  companyValuesCulture: [],
+  highPriorityKeywords: [],
+  atsKeywords: [],
 };
 
 afterEach(() => {
