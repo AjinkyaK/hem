@@ -19,3 +19,10 @@ export const JobDetailsSchema = z.object({
 });
 
 export type JobDetails = z.infer<typeof JobDetailsSchema>;
+
+export const TailorOutputSchema = z.object({
+  thinking: z.string(),
+  resume: z.string(),
+});
+
+export type TailorOutput = z.infer<typeof TailorOutputSchema>;
