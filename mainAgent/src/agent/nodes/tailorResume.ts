@@ -7,6 +7,12 @@ import { TailorOutputSchema } from "../types.js";
 import { tailorResumeSystemPrompt } from "../prompts/tailorResume.js";
 import { writeResumeDraft } from "../utils/writeResumeDraft.js";
 
+const structuredModel = new ChatAnthropic({
+  model: "claude-3-5-haiku-20241022",
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  maxRetries: 2,
+}).withStructuredOutput(TailorOutputSchema);
+
 export const tailorResume = async (
   state: typeof StateAnnotation.State,
   _config: RunnableConfig,
@@ -17,12 +23,6 @@ export const tailorResume = async (
   if (!state.jobDetails) {
     throw new Error("tailorResume: jobDetails is null");
   }
-
-  const structuredModel = new ChatAnthropic({
-    model: "claude-3-5-haiku-20241022",
-    apiKey: process.env.ANTHROPIC_API_KEY,
-    maxRetries: 2,
-  }).withStructuredOutput(TailorOutputSchema);
 
   const result = await structuredModel.invoke([
     new SystemMessage(tailorResumeSystemPrompt),
