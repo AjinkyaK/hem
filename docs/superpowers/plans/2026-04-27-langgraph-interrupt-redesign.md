@@ -618,10 +618,10 @@ git commit -m "refactor: strip file write and interrupt from reviseResume"
 
 - [ ] **Step 1: Update routing test to mock the new node**
 
-Open `mainAgent/tests/nodes/routing.test.ts`. After line 17 (the existing `jest.mock("../../src/agent/nodes/reviseResume.js", ...)` block), insert:
+Open `mainAgent/tests/nodes/routing.test.ts`. After the existing `jest.unstable_mockModule("../../src/agent/nodes/reviseResume.js", ...)` block (around line 13-15), insert:
 
 ```ts
-jest.mock("../../src/agent/nodes/reviewDraft.js", () => ({
+jest.unstable_mockModule("../../src/agent/nodes/reviewDraft.js", () => ({
   reviewDraft: jest.fn(),
 }));
 ```
