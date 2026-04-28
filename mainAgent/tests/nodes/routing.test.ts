@@ -1,23 +1,18 @@
 import { describe, it, expect, jest } from "@jest/globals";
+import { BaseMessage } from "@langchain/core/messages";
 
-// Mock all four pipeline nodes so their top-level side effects (ChatAnthropic
-// instantiation, jsdom ESM deps) don't break the test environment. The routing
-// test only exercises afterReview, which has no dependency on these modules.
-jest.mock("../../src/agent/nodes/parseJobInput.js", () => ({
+jest.unstable_mockModule("../../src/agent/nodes/parseJobInput.js", () => ({
   parseJobInput: jest.fn(),
 }));
-jest.mock("../../src/agent/nodes/extractJobDetails.js", () => ({
+jest.unstable_mockModule("../../src/agent/nodes/extractJobDetails.js", () => ({
   extractJobDetails: jest.fn(),
 }));
-jest.mock("../../src/agent/nodes/tailorResume.js", () => ({
+jest.unstable_mockModule("../../src/agent/nodes/tailorResume.js", () => ({
   tailorResume: jest.fn(),
 }));
-jest.mock("../../src/agent/nodes/reviseResume.js", () => ({
+jest.unstable_mockModule("../../src/agent/nodes/reviseResume.js", () => ({
   reviseResume: jest.fn(),
 }));
-
-import { afterReview } from "../../src/agent/graph.js";
-import { BaseMessage } from "@langchain/core/messages";
 
 const baseState = {
   messages: [] as BaseMessage[],
@@ -30,27 +25,32 @@ const baseState = {
 };
 
 describe("afterReview routing", () => {
-  it("routes to __end__ when userFeedback is 'approve'", () => {
+  it("routes to __end__ when userFeedback is 'approve'", async () => {
+    const { afterReview } = await import("../../src/agent/graph.js");
     const result = afterReview({ ...baseState, userFeedback: "approve" });
     expect(result).toBe("__end__");
   });
 
-  it("routes to __end__ when userFeedback is 'Approve' (case insensitive)", () => {
+  it("routes to __end__ when userFeedback is 'Approve' (case insensitive)", async () => {
+    const { afterReview } = await import("../../src/agent/graph.js");
     const result = afterReview({ ...baseState, userFeedback: "Approve" });
     expect(result).toBe("__end__");
   });
 
-  it("routes to __end__ when userFeedback is 'APPROVE' with whitespace", () => {
+  it("routes to __end__ when userFeedback is 'APPROVE' with whitespace", async () => {
+    const { afterReview } = await import("../../src/agent/graph.js");
     const result = afterReview({ ...baseState, userFeedback: "  APPROVE  " });
     expect(result).toBe("__end__");
   });
 
-  it("routes to reviseResume when userFeedback is feedback text", () => {
+  it("routes to reviseResume when userFeedback is feedback text", async () => {
+    const { afterReview } = await import("../../src/agent/graph.js");
     const result = afterReview({ ...baseState, userFeedback: "Make the summary shorter" });
     expect(result).toBe("reviseResume");
   });
 
-  it("routes to __end__ when userFeedback is null (no feedback provided)", () => {
+  it("routes to __end__ when userFeedback is null (no feedback provided)", async () => {
+    const { afterReview } = await import("../../src/agent/graph.js");
     const result = afterReview({ ...baseState, userFeedback: null });
     expect(result).toBe("__end__");
   });

@@ -1,11 +1,9 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 
-// Mock fetch before importing the node
 const mockFetch = jest.fn<(url: string, init?: RequestInit) => Promise<Response>>();
 global.fetch = mockFetch as unknown as typeof fetch;
 
-// Mock JSDOM and Readability to avoid their ESM-only transitive deps
-jest.mock("jsdom", () => ({
+jest.unstable_mockModule("jsdom", () => ({
   JSDOM: jest.fn().mockImplementation((_html: string, _opts: unknown) => ({
     window: {
       document: {
@@ -15,13 +13,11 @@ jest.mock("jsdom", () => ({
   })),
 }));
 
-jest.mock("@mozilla/readability", () => ({
+jest.unstable_mockModule("@mozilla/readability", () => ({
   Readability: jest.fn().mockImplementation(() => ({
     parse: () => ({ textContent: "Job posting text here" }),
   })),
 }));
-
-import { parseJobInput } from "../../src/agent/nodes/parseJobInput.js";
 
 const baseState = {
   messages: [],
@@ -39,6 +35,7 @@ describe("parseJobInput", () => {
   });
 
   it("returns plain text unchanged when not a URL", async () => {
+    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
     const state = { ...baseState, rawJobInput: "Senior Engineer at Acme Corp..." };
     const result = await parseJobInput(state, {});
     expect(result.rawJobInput).toBe("Senior Engineer at Acme Corp...");
@@ -51,6 +48,7 @@ describe("parseJobInput", () => {
       text: async () => "<html><body><article><p>Job posting text here</p></article></body></html>",
     } as unknown as Response);
 
+    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
     const state = { ...baseState, rawJobInput: "https://jobs.example.com/posting/123" };
     const result = await parseJobInput(state, {});
     expect(mockFetch).toHaveBeenCalledWith("https://jobs.example.com/posting/123");
@@ -65,11 +63,13 @@ describe("parseJobInput", () => {
       statusText: "Not Found",
     } as unknown as Response);
 
+    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
     const state = { ...baseState, rawJobInput: "https://jobs.example.com/missing" };
     await expect(parseJobInput(state, {})).rejects.toThrow("Failed to fetch job posting");
   });
 
   it("throws when rawJobInput is empty", async () => {
+    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
     const state = { ...baseState, rawJobInput: "" };
     await expect(parseJobInput(state, {})).rejects.toThrow("rawJobInput is required");
   });
