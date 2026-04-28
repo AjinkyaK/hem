@@ -49,7 +49,7 @@ describe("writeResumeDraft", () => {
   it("slugifies company and title into the filename", () => {
     const filePath = writeResumeDraft("# Resume", jobDetails, 1, tmpDir);
     const filename = path.basename(filePath);
-    expect(filename).toMatch(/^stripe_inc_senior_software_engineer_/);
+    expect(filename).toBe("stripe_inc_senior_software_engineer_v1.md");
   });
 
   it("includes the version number in the filename", () => {
@@ -58,18 +58,18 @@ describe("writeResumeDraft", () => {
     expect(filename).toMatch(/_v3\.md$/);
   });
 
-  it("includes today's date in the filename", () => {
-    const today = new Date().toISOString().split("T")[0];
-    const filePath = writeResumeDraft("# Resume", jobDetails, 1, tmpDir);
-    const filename = path.basename(filePath);
-    expect(filename).toContain(today);
-  });
-
   it("writes distinct files for different versions", () => {
     const path1 = writeResumeDraft("v1", jobDetails, 1, tmpDir);
     const path2 = writeResumeDraft("v2", jobDetails, 2, tmpDir);
     expect(path1).not.toBe(path2);
     expect(fs.readFileSync(path1, "utf-8")).toBe("v1");
     expect(fs.readFileSync(path2, "utf-8")).toBe("v2");
+  });
+
+  it("is idempotent: same inputs produce same path and same contents", () => {
+    const path1 = writeResumeDraft("# Resume", jobDetails, 1, tmpDir);
+    const path2 = writeResumeDraft("# Resume", jobDetails, 1, tmpDir);
+    expect(path1).toBe(path2);
+    expect(fs.readFileSync(path2, "utf-8")).toBe("# Resume");
   });
 });

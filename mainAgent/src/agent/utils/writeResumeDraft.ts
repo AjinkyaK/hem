@@ -25,8 +25,7 @@ export function writeResumeDraft(
 ): string {
   const company = slugify(jobDetails.company);
   const title = slugify(jobDetails.title);
-  const date = new Date().toISOString().split("T")[0];
-  const filename = `${company}_${title}_${date}_v${version}.md`;
+  const filename = `${company}_${title}_v${version}.md`;
   const filePath = path.join(outputDir, filename);
 
   fs.mkdirSync(outputDir, { recursive: true });
