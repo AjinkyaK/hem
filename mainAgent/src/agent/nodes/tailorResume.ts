@@ -1,14 +1,12 @@
 import { RunnableConfig } from "@langchain/core/runnables";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
-import { interrupt } from "@langchain/langgraph";
 import { StateAnnotation } from "../state.js";
 import { TailorOutputSchema } from "../types.js";
 import { tailorResumeSystemPrompt } from "../prompts/tailorResume.js";
-import { writeResumeDraft } from "../utils/writeResumeDraft.js";
 
 const structuredModel = new ChatAnthropic({
-  model: "claude-3-5-haiku-20241022",
+  model: "claude-haiku-4-5-20251001",
   apiKey: process.env.ANTHROPIC_API_KEY,
   maxRetries: 2,
 }).withStructuredOutput(TailorOutputSchema);
@@ -31,12 +29,5 @@ export const tailorResume = async (
     ),
   ]);
 
-  const draft = result.resume;
-  const filePath = writeResumeDraft(draft, state.jobDetails, 1);
-
-  const userFeedback = interrupt(
-    `Draft written to: ${filePath}\n\nType 'approve' to finalize, or provide feedback to revise.`,
-  ) as string;
-
-  return { resumeDraft: draft, draftVersion: 1, userFeedback };
+  return { resumeDraft: result.resume, draftVersion: 1 };
 };

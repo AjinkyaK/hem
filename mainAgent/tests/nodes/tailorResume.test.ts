@@ -49,16 +49,6 @@ describe("TailorOutputSchema", () => {
   });
 });
 
-// Mock writeResumeDraft to avoid filesystem writes
-jest.unstable_mockModule("../../src/agent/utils/writeResumeDraft.js", () => ({
-  writeResumeDraft: jest.fn(() => "/tmp/fake_draft_v1.md"),
-}));
-
-// Mock @langchain/langgraph's interrupt to return a fixed feedback value
-jest.unstable_mockModule("@langchain/langgraph", () => ({
-  interrupt: jest.fn(() => "approve"),
-}));
-
 // Mock ChatAnthropic so withStructuredOutput returns a model whose invoke
 // returns a fixed { thinking, resume } object
 const mockInvoke = jest.fn(async () => ({
@@ -110,7 +100,7 @@ describe("tailorResume node", () => {
     const result = await tailorResume(state, {});
     expect(result.resumeDraft).toBe("# Tailored Resume\n\n## Professional summary\n...");
     expect(result.draftVersion).toBe(1);
-    expect(result.userFeedback).toBe("approve");
+    expect(result.userFeedback).toBeUndefined();
     expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
