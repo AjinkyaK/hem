@@ -63,7 +63,7 @@ describe("reviewDraft node", () => {
     await reviewDraft(baseState, {});
     const message = mockInterrupt.mock.calls[0][0] as string;
     expect(message).toContain("/tmp/fake_v1.md");
-    expect(message).toContain("approve");
+    expect(message).toContain("Type 'approve' to finalize");
   });
 
   it("throws when resumeDraft is null", async () => {
@@ -84,13 +84,14 @@ describe("reviewDraft node", () => {
     expect(mockInterrupt).not.toHaveBeenCalled();
   });
 
-  it("is idempotent: two invocations with the same state call writeResumeDraft with identical args", async () => {
+  it("is idempotent: two invocations with the same state call writeResumeDraft with identical args and return identical userFeedback", async () => {
     const { reviewDraft } = await import("../../src/agent/nodes/reviewDraft.js");
-    await reviewDraft(baseState, {});
-    await reviewDraft(baseState, {});
+    const result1 = await reviewDraft(baseState, {});
+    const result2 = await reviewDraft(baseState, {});
     expect(mockWriteResumeDraft).toHaveBeenCalledTimes(2);
     expect(mockWriteResumeDraft.mock.calls[0]).toEqual(
       mockWriteResumeDraft.mock.calls[1],
     );
+    expect(result1.userFeedback).toBe(result2.userFeedback);
   });
 });
