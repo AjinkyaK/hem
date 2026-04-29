@@ -12,6 +12,29 @@
 
 ---
 
+## Execution Status (as of 2026-04-28)
+
+| Task | Status | Commit(s) |
+|---|---|---|
+| Task 1: Drop date from `writeResumeDraft` | ✅ Done | `931ac9a` |
+| Test-infra side fix: `jest.mock` → `unstable_mockModule` (parseJobInput.test.ts, routing.test.ts) | ✅ Done | `acdee72` |
+| Plan update: Task 5 mock pattern → `unstable_mockModule` | ✅ Done | `e3412ba` |
+| Task 2: Create `reviewDraft` node + tests | ✅ Done | `97ac00a` (+ test-quality fix `b399668`) |
+| Task 3: Strip file write + interrupt from `tailorResume` | ✅ Done | `3e1a7f7` |
+| Task 4: Strip file write + interrupt from `reviseResume` | ⏳ Pending | — |
+| Task 5: Wire `reviewDraft` into the graph | ⏳ Pending | — |
+| Task 6: End-to-end smoke verification | ⏳ Pending | — |
+| Final code review across all tasks | ⏳ Pending | — |
+
+**Resumption notes:**
+- Branch: `feat/prompt-migration`. HEAD: `3e1a7f7` (or later if more work landed since).
+- Full test suite: 42/42 passing.
+- Uncommitted working-tree changes still present: `extractJobDetails.ts`, `reviseResume.ts`, `.gitignore` (model-ID bumps). Task 4's "replace the entire file" instruction will absorb the `reviseResume.ts` bump the same way Task 3 absorbed `tailorResume.ts`'s.
+- New `reviewDraft.ts` exists at `mainAgent/src/agent/nodes/reviewDraft.ts` and is fully tested. It is **not yet wired into the graph** — that happens in Task 5.
+- Task 4 is the next task: dispatch a fresh implementer subagent with the Task 4 description below, then run spec + code-quality review per `superpowers:subagent-driven-development`.
+
+---
+
 ## File Structure
 
 | File | Action | Responsibility |
@@ -48,7 +71,7 @@
 - Modify: `mainAgent/src/agent/utils/writeResumeDraft.ts:28-29`
 - Modify: `mainAgent/tests/utils/writeResumeDraft.test.ts:49-66`
 
-- [ ] **Step 1: Update the filename test to expect the new format (no date)**
+- [x] **Step 1: Update the filename test to expect the new format (no date)**
 
 Open `mainAgent/tests/utils/writeResumeDraft.test.ts`. Make two edits:
 
@@ -64,7 +87,7 @@ Open `mainAgent/tests/utils/writeResumeDraft.test.ts`. Make two edits:
 
 **(b)** Delete the entire `it("includes today's date in the filename", ...)` test (lines ~61-66). Date is no longer in the filename.
 
-- [ ] **Step 2: Add an idempotency test for `writeResumeDraft`**
+- [x] **Step 2: Add an idempotency test for `writeResumeDraft`**
 
 Append to the `describe("writeResumeDraft", ...)` block in `mainAgent/tests/utils/writeResumeDraft.test.ts`:
 
@@ -77,7 +100,7 @@ Append to the `describe("writeResumeDraft", ...)` block in `mainAgent/tests/util
   });
 ```
 
-- [ ] **Step 3: Run the test to confirm it fails**
+- [x] **Step 3: Run the test to confirm it fails**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=writeResumeDraft.test.ts
@@ -85,7 +108,7 @@ cd mainAgent && yarn test --testPathPatterns=writeResumeDraft.test.ts
 
 Expected: failures on the new "slugifies" assertion (filename still contains date) and the idempotency assertion is fine — but the `it("includes the version number in the filename", ...)` test still passes (it only checks the suffix). Confirm at least the slugify test fails.
 
-- [ ] **Step 4: Update `writeResumeDraft` to drop the date**
+- [x] **Step 4: Update `writeResumeDraft` to drop the date**
 
 Open `mainAgent/src/agent/utils/writeResumeDraft.ts`. Replace lines 28–29:
 
@@ -100,7 +123,7 @@ with:
   const filename = `${company}_${title}_v${version}.md`;
 ```
 
-- [ ] **Step 5: Run the test to confirm it passes**
+- [x] **Step 5: Run the test to confirm it passes**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=writeResumeDraft.test.ts
@@ -108,7 +131,7 @@ cd mainAgent && yarn test --testPathPatterns=writeResumeDraft.test.ts
 
 Expected: all `writeResumeDraft` tests PASS.
 
-- [ ] **Step 6: Lint**
+- [x] **Step 6: Lint**
 
 ```bash
 cd mainAgent && yarn lint
@@ -116,7 +139,7 @@ cd mainAgent && yarn lint
 
 Expected: no errors.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add mainAgent/src/agent/utils/writeResumeDraft.ts mainAgent/tests/utils/writeResumeDraft.test.ts
@@ -131,7 +154,7 @@ git commit -m "refactor: drop date from resume draft filename for idempotency"
 - Create: `mainAgent/src/agent/nodes/reviewDraft.ts`
 - Create: `mainAgent/tests/nodes/reviewDraft.test.ts`
 
-- [ ] **Step 1: Write the failing test file**
+- [x] **Step 1: Write the failing test file**
 
 Create `mainAgent/tests/nodes/reviewDraft.test.ts` with this exact content:
 
@@ -234,7 +257,7 @@ describe("reviewDraft node", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to confirm it fails**
+- [x] **Step 2: Run the test to confirm it fails**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=reviewDraft.test.ts
@@ -242,7 +265,7 @@ cd mainAgent && yarn test --testPathPatterns=reviewDraft.test.ts
 
 Expected: FAIL with "Cannot find module '../../src/agent/nodes/reviewDraft.js'" or equivalent.
 
-- [ ] **Step 3: Implement the `reviewDraft` node**
+- [x] **Step 3: Implement the `reviewDraft` node**
 
 Create `mainAgent/src/agent/nodes/reviewDraft.ts` with:
 
@@ -277,7 +300,7 @@ export const reviewDraft = async (
 };
 ```
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=reviewDraft.test.ts
@@ -285,7 +308,7 @@ cd mainAgent && yarn test --testPathPatterns=reviewDraft.test.ts
 
 Expected: all 5 tests PASS.
 
-- [ ] **Step 5: Lint**
+- [x] **Step 5: Lint**
 
 ```bash
 cd mainAgent && yarn lint
@@ -293,7 +316,7 @@ cd mainAgent && yarn lint
 
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add mainAgent/src/agent/nodes/reviewDraft.ts mainAgent/tests/nodes/reviewDraft.test.ts
@@ -310,7 +333,7 @@ git commit -m "feat: add shared reviewDraft node for HITL approval"
 
 **Note on ordering:** The existing test mocks `@langchain/langgraph` and `writeResumeDraft.js`. We **keep those mocks during the failing-test step** so the failure mode is clean (an assertion mismatch, not a real `GraphInterrupt` thrown outside a graph context). The mocks are removed in a cleanup step after the implementation change.
 
-- [ ] **Step 1: Update only the assertion — keep all existing mocks**
+- [x] **Step 1: Update only the assertion — keep all existing mocks**
 
 Open `mainAgent/tests/nodes/tailorResume.test.ts`. In the `it("extracts the resume field from structured output and stores it as resumeDraft", ...)` test, change one line:
 
@@ -328,7 +351,7 @@ with:
 
 Leave everything else in this file unchanged for now (including the two `unstable_mockModule` blocks for `writeResumeDraft.js` and `@langchain/langgraph` and the two guard-clause tests).
 
-- [ ] **Step 2: Run the test to confirm it fails**
+- [x] **Step 2: Run the test to confirm it fails**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=tailorResume.test.ts
@@ -336,7 +359,7 @@ cd mainAgent && yarn test --testPathPatterns=tailorResume.test.ts
 
 Expected: FAIL on `expect(result.userFeedback).toBeUndefined()` — current node still returns `userFeedback: "approve"` (from the mocked interrupt). Failure is clean because mocks intercept the real `interrupt` and `writeResumeDraft`.
 
-- [ ] **Step 3: Update `tailorResume.ts` to drop file write + interrupt**
+- [x] **Step 3: Update `tailorResume.ts` to drop file write + interrupt**
 
 Open `mainAgent/src/agent/nodes/tailorResume.ts` and replace the entire file with:
 
@@ -378,7 +401,7 @@ export const tailorResume = async (
 
 (Changes: removed `interrupt`, `writeResumeDraft`, file-write call, and `userFeedback` from the return value.)
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=tailorResume.test.ts
@@ -386,7 +409,7 @@ cd mainAgent && yarn test --testPathPatterns=tailorResume.test.ts
 
 Expected: all `tailorResume` tests PASS.
 
-- [ ] **Step 5: Remove now-unused mocks from the test**
+- [x] **Step 5: Remove now-unused mocks from the test**
 
 Open `mainAgent/tests/nodes/tailorResume.test.ts`. Delete these two blocks (the node no longer imports either module):
 
@@ -402,7 +425,7 @@ jest.unstable_mockModule("@langchain/langgraph", () => ({
 }));
 ```
 
-- [ ] **Step 6: Run the test again to confirm it still passes**
+- [x] **Step 6: Run the test again to confirm it still passes**
 
 ```bash
 cd mainAgent && yarn test --testPathPatterns=tailorResume.test.ts
@@ -410,7 +433,7 @@ cd mainAgent && yarn test --testPathPatterns=tailorResume.test.ts
 
 Expected: all `tailorResume` tests still PASS — the deleted mocks were no longer used.
 
-- [ ] **Step 7: Lint**
+- [x] **Step 7: Lint**
 
 ```bash
 cd mainAgent && yarn lint
@@ -418,7 +441,7 @@ cd mainAgent && yarn lint
 
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add mainAgent/src/agent/nodes/tailorResume.ts mainAgent/tests/nodes/tailorResume.test.ts
