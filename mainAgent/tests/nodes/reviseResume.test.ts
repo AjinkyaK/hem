@@ -1,8 +1,11 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 
 const mockInvoke = jest.fn(async () => ({ content: "# Revised Resume" }));
-const mockWriteResumeDraft = jest.fn(() => "/tmp/should_not_be_called.md");
-const mockInterrupt = jest.fn(() => "approve");
+const mockWriteResumeDraft = jest.fn(
+  (_draft: string, _job: unknown, version: number) =>
+    `/tmp/should_not_be_called_v${version}.md`,
+);
+const mockInterrupt = jest.fn((_msg: string) => "approve");
 
 jest.unstable_mockModule("@langchain/anthropic", () => ({
   ChatAnthropic: jest.fn().mockImplementation(() => ({
