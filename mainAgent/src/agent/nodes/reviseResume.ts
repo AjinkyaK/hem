@@ -1,12 +1,10 @@
 import { RunnableConfig } from "@langchain/core/runnables";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { HumanMessage } from "@langchain/core/messages";
-import { interrupt } from "@langchain/langgraph";
 import { StateAnnotation } from "../state.js";
-import { writeResumeDraft } from "../utils/writeResumeDraft.js";
 
 const model = new ChatAnthropic({
-  model: "claude-3-5-haiku-20241022",
+  model: "claude-haiku-4-5-20251001",
   apiKey: process.env.ANTHROPIC_API_KEY,
   maxRetries: 2,
 });
@@ -35,12 +33,5 @@ export const reviseResume = async (
     ? result.content
     : JSON.stringify(result.content);
 
-  const newVersion = state.draftVersion + 1;
-  const filePath = writeResumeDraft(newDraft, state.jobDetails, newVersion);
-
-  const userFeedback = interrupt(
-    `Draft written to: ${filePath}\n\nType 'approve' to finalize, or provide feedback to revise.`,
-  ) as string;
-
-  return { resumeDraft: newDraft, draftVersion: newVersion, userFeedback };
+  return { resumeDraft: newDraft, draftVersion: state.draftVersion + 1 };
 };
