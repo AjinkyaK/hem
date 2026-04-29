@@ -13,6 +13,9 @@ jest.unstable_mockModule("../../src/agent/nodes/tailorResume.js", () => ({
 jest.unstable_mockModule("../../src/agent/nodes/reviseResume.js", () => ({
   reviseResume: jest.fn(),
 }));
+jest.unstable_mockModule("../../src/agent/nodes/reviewDraft.js", () => ({
+  reviewDraft: jest.fn(),
+}));
 
 const baseState = {
   messages: [] as BaseMessage[],

@@ -4,6 +4,7 @@ import { parseJobInput } from "./nodes/parseJobInput.js";
 import { extractJobDetails } from "./nodes/extractJobDetails.js";
 import { tailorResume } from "./nodes/tailorResume.js";
 import { reviseResume } from "./nodes/reviseResume.js";
+import { reviewDraft } from "./nodes/reviewDraft.js";
 
 export const afterReview = (
   state: typeof StateAnnotation.State,
@@ -19,11 +20,13 @@ const builder = new StateGraph(StateAnnotation)
   .addNode("extractJobDetails", extractJobDetails)
   .addNode("tailorResume", tailorResume)
   .addNode("reviseResume", reviseResume)
+  .addNode("reviewDraft", reviewDraft)
   .addEdge("__start__", "parseJobInput")
   .addEdge("parseJobInput", "extractJobDetails")
   .addEdge("extractJobDetails", "tailorResume")
-  .addConditionalEdges("tailorResume", afterReview)
-  .addConditionalEdges("reviseResume", afterReview);
+  .addEdge("tailorResume", "reviewDraft")
+  .addEdge("reviseResume", "reviewDraft")
+  .addConditionalEdges("reviewDraft", afterReview);
 
 export const graph = builder.compile();
 graph.name = "MainAgent";
