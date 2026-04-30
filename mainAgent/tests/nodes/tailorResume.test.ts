@@ -70,7 +70,8 @@ describe("tailorResume node", () => {
   });
 
   it("extracts the resume field from structured output and stores it as resumeDraft", async () => {
-    const { tailorResume } = await import("../../src/agent/nodes/tailorResume.js");
+    const { tailorResume } =
+      await import("../../src/agent/nodes/tailorResume.js");
 
     const state = {
       messages: [],
@@ -98,14 +99,17 @@ describe("tailorResume node", () => {
     };
 
     const result = await tailorResume(state, {});
-    expect(result.resumeDraft).toBe("# Tailored Resume\n\n## Professional summary\n...");
+    expect(result.resumeDraft).toBe(
+      "# Tailored Resume\n\n## Professional summary\n...",
+    );
     expect(result.draftVersion).toBe(1);
     expect(result.userFeedback).toBeUndefined();
     expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
   it("throws when rawResumeInput is empty", async () => {
-    const { tailorResume } = await import("../../src/agent/nodes/tailorResume.js");
+    const { tailorResume } =
+      await import("../../src/agent/nodes/tailorResume.js");
 
     const state = {
       messages: [],
@@ -132,12 +136,15 @@ describe("tailorResume node", () => {
       userFeedback: null,
     };
 
-    await expect(tailorResume(state, {})).rejects.toThrow("rawResumeInput is empty");
+    await expect(tailorResume(state, {})).rejects.toThrow(
+      "rawResumeInput is empty",
+    );
     expect(mockInvoke).not.toHaveBeenCalled();
   });
 
   it("throws when jobDetails is null", async () => {
-    const { tailorResume } = await import("../../src/agent/nodes/tailorResume.js");
+    const { tailorResume } =
+      await import("../../src/agent/nodes/tailorResume.js");
 
     const state = {
       messages: [],

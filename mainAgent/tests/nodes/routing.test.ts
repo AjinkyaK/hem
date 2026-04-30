@@ -48,7 +48,10 @@ describe("afterReview routing", () => {
 
   it("routes to reviseResume when userFeedback is feedback text", async () => {
     const { afterReview } = await import("../../src/agent/graph.js");
-    const result = afterReview({ ...baseState, userFeedback: "Make the summary shorter" });
+    const result = afterReview({
+      ...baseState,
+      userFeedback: "Make the summary shorter",
+    });
     expect(result).toBe("reviseResume");
   });
 

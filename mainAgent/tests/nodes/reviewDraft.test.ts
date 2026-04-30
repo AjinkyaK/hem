@@ -1,7 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 
 const mockWriteResumeDraft = jest.fn(
-  (_draft: string, _job: unknown, version: number) => `/tmp/fake_v${version}.md`,
+  (_draft: string, _job: unknown, version: number) =>
+    `/tmp/fake_v${version}.md`,
 );
 const mockInterrupt = jest.fn((_msg: string) => "approve");
 
@@ -47,7 +48,8 @@ describe("reviewDraft node", () => {
   });
 
   it("writes the draft and returns userFeedback from interrupt", async () => {
-    const { reviewDraft } = await import("../../src/agent/nodes/reviewDraft.js");
+    const { reviewDraft } =
+      await import("../../src/agent/nodes/reviewDraft.js");
     const result = await reviewDraft(baseState, {});
     expect(mockWriteResumeDraft).toHaveBeenCalledWith(
       "# Tailored Resume",
@@ -59,7 +61,8 @@ describe("reviewDraft node", () => {
   });
 
   it("includes the file path in the interrupt message", async () => {
-    const { reviewDraft } = await import("../../src/agent/nodes/reviewDraft.js");
+    const { reviewDraft } =
+      await import("../../src/agent/nodes/reviewDraft.js");
     await reviewDraft(baseState, {});
     const message = mockInterrupt.mock.calls[0][0] as string;
     expect(message).toContain("/tmp/fake_v1.md");
@@ -67,7 +70,8 @@ describe("reviewDraft node", () => {
   });
 
   it("throws when resumeDraft is null", async () => {
-    const { reviewDraft } = await import("../../src/agent/nodes/reviewDraft.js");
+    const { reviewDraft } =
+      await import("../../src/agent/nodes/reviewDraft.js");
     await expect(
       reviewDraft({ ...baseState, resumeDraft: null }, {}),
     ).rejects.toThrow("resumeDraft is null");
@@ -76,7 +80,8 @@ describe("reviewDraft node", () => {
   });
 
   it("throws when jobDetails is null", async () => {
-    const { reviewDraft } = await import("../../src/agent/nodes/reviewDraft.js");
+    const { reviewDraft } =
+      await import("../../src/agent/nodes/reviewDraft.js");
     await expect(
       reviewDraft({ ...baseState, jobDetails: null }, {}),
     ).rejects.toThrow("jobDetails is null");
@@ -85,7 +90,8 @@ describe("reviewDraft node", () => {
   });
 
   it("is idempotent: two invocations with the same state call writeResumeDraft with identical args and return identical userFeedback", async () => {
-    const { reviewDraft } = await import("../../src/agent/nodes/reviewDraft.js");
+    const { reviewDraft } =
+      await import("../../src/agent/nodes/reviewDraft.js");
     const result1 = await reviewDraft(baseState, {});
     const result2 = await reviewDraft(baseState, {});
     expect(mockWriteResumeDraft).toHaveBeenCalledTimes(2);

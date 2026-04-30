@@ -29,9 +29,10 @@ export const reviseResume = async (
     ),
   ]);
 
-  const newDraft = typeof result.content === "string"
-    ? result.content
-    : JSON.stringify(result.content);
+  const newDraft =
+    typeof result.content === "string"
+      ? result.content
+      : JSON.stringify(result.content);
 
   return { resumeDraft: newDraft, draftVersion: state.draftVersion + 1 };
 };

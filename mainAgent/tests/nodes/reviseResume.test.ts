@@ -56,7 +56,8 @@ describe("reviseResume node", () => {
   });
 
   it("returns the revised draft, increments draftVersion, and does not write a file or interrupt", async () => {
-    const { reviseResume } = await import("../../src/agent/nodes/reviseResume.js");
+    const { reviseResume } =
+      await import("../../src/agent/nodes/reviseResume.js");
     const result = await reviseResume(baseState, {});
     expect(result.resumeDraft).toBe("# Revised Resume");
     expect(result.draftVersion).toBe(2);
@@ -67,7 +68,8 @@ describe("reviseResume node", () => {
   });
 
   it("throws when resumeDraft is null", async () => {
-    const { reviseResume } = await import("../../src/agent/nodes/reviseResume.js");
+    const { reviseResume } =
+      await import("../../src/agent/nodes/reviseResume.js");
     await expect(
       reviseResume({ ...baseState, resumeDraft: null }, {}),
     ).rejects.toThrow("resumeDraft is null");
@@ -75,7 +77,8 @@ describe("reviseResume node", () => {
   });
 
   it("throws when userFeedback is null", async () => {
-    const { reviseResume } = await import("../../src/agent/nodes/reviseResume.js");
+    const { reviseResume } =
+      await import("../../src/agent/nodes/reviseResume.js");
     await expect(
       reviseResume({ ...baseState, userFeedback: null }, {}),
     ).rejects.toThrow("userFeedback is null");
@@ -83,7 +86,8 @@ describe("reviseResume node", () => {
   });
 
   it("throws when jobDetails is null", async () => {
-    const { reviseResume } = await import("../../src/agent/nodes/reviseResume.js");
+    const { reviseResume } =
+      await import("../../src/agent/nodes/reviseResume.js");
     await expect(
       reviseResume({ ...baseState, jobDetails: null }, {}),
     ).rejects.toThrow("jobDetails is null");
