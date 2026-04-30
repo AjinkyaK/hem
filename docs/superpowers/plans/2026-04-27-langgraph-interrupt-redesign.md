@@ -12,7 +12,7 @@
 
 ---
 
-## Execution Status (as of 2026-04-28)
+## Execution Status (as of 2026-04-29)
 
 | Task | Status | Commit(s) |
 |---|---|---|
@@ -21,17 +21,12 @@
 | Plan update: Task 5 mock pattern → `unstable_mockModule` | ✅ Done | `e3412ba` |
 | Task 2: Create `reviewDraft` node + tests | ✅ Done | `97ac00a` (+ test-quality fix `b399668`) |
 | Task 3: Strip file write + interrupt from `tailorResume` | ✅ Done | `3e1a7f7` |
-| Task 4: Strip file write + interrupt from `reviseResume` | ⏳ Pending | — |
-| Task 5: Wire `reviewDraft` into the graph | ⏳ Pending | — |
-| Task 6: End-to-end smoke verification | ⏳ Pending | — |
-| Final code review across all tasks | ⏳ Pending | — |
+| Task 4: Strip file write + interrupt from `reviseResume` | ✅ Done | `d1c2444` (+ mock-signature fix `7c47ee9`) |
+| Task 5: Wire `reviewDraft` into the graph | ✅ Done | `e789fb5` (+ format passes `deb38c2`, `7154255`) |
+| Task 6: End-to-end smoke verification | ✅ Done | — (verification only; no commit) |
+| Final code review across all tasks | ✅ Done — APPROVED FOR MERGE | — |
 
-**Resumption notes:**
-- Branch: `feat/prompt-migration`. HEAD: `3e1a7f7` (or later if more work landed since).
-- Full test suite: 42/42 passing.
-- Uncommitted working-tree changes still present: `extractJobDetails.ts`, `reviseResume.ts`, `.gitignore` (model-ID bumps). Task 4's "replace the entire file" instruction will absorb the `reviseResume.ts` bump the same way Task 3 absorbed `tailorResume.ts`'s.
-- New `reviewDraft.ts` exists at `mainAgent/src/agent/nodes/reviewDraft.ts` and is fully tested. It is **not yet wired into the graph** — that happens in Task 5.
-- Task 4 is the next task: dispatch a fresh implementer subagent with the Task 4 description below, then run spec + code-quality review per `superpowers:subagent-driven-development`.
+**Resumption notes:** Redesign complete. HEAD: `7154255`. 46/46 tests passing, lint clean, format clean, build clean. Single `interrupt()` call site (`reviewDraft.ts`); `tailorResume` and `reviseResume` are pure transforms. Final reviewer flagged minor polish items (commit-log squashing for log hygiene, an idempotency-test comment) — none blocking. Ready to merge.
 
 ---
 
