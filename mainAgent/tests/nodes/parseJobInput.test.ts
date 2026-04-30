@@ -1,6 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 
-const mockFetch = jest.fn<(url: string, init?: RequestInit) => Promise<Response>>();
+const mockFetch =
+  jest.fn<(url: string, init?: RequestInit) => Promise<Response>>();
 global.fetch = mockFetch as unknown as typeof fetch;
 
 jest.unstable_mockModule("jsdom", () => ({
@@ -35,8 +36,12 @@ describe("parseJobInput", () => {
   });
 
   it("returns plain text unchanged when not a URL", async () => {
-    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
-    const state = { ...baseState, rawJobInput: "Senior Engineer at Acme Corp..." };
+    const { parseJobInput } =
+      await import("../../src/agent/nodes/parseJobInput.js");
+    const state = {
+      ...baseState,
+      rawJobInput: "Senior Engineer at Acme Corp...",
+    };
     const result = await parseJobInput(state, {});
     expect(result.rawJobInput).toBe("Senior Engineer at Acme Corp...");
     expect(mockFetch).not.toHaveBeenCalled();
@@ -45,13 +50,20 @@ describe("parseJobInput", () => {
   it("fetches and strips HTML when input is a URL", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      text: async () => "<html><body><article><p>Job posting text here</p></article></body></html>",
+      text: async () =>
+        "<html><body><article><p>Job posting text here</p></article></body></html>",
     } as unknown as Response);
 
-    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
-    const state = { ...baseState, rawJobInput: "https://jobs.example.com/posting/123" };
+    const { parseJobInput } =
+      await import("../../src/agent/nodes/parseJobInput.js");
+    const state = {
+      ...baseState,
+      rawJobInput: "https://jobs.example.com/posting/123",
+    };
     const result = await parseJobInput(state, {});
-    expect(mockFetch).toHaveBeenCalledWith("https://jobs.example.com/posting/123");
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://jobs.example.com/posting/123",
+    );
     expect(typeof result.rawJobInput).toBe("string");
     expect((result.rawJobInput as string).length).toBeGreaterThan(0);
   });
@@ -63,14 +75,23 @@ describe("parseJobInput", () => {
       statusText: "Not Found",
     } as unknown as Response);
 
-    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
-    const state = { ...baseState, rawJobInput: "https://jobs.example.com/missing" };
-    await expect(parseJobInput(state, {})).rejects.toThrow("Failed to fetch job posting");
+    const { parseJobInput } =
+      await import("../../src/agent/nodes/parseJobInput.js");
+    const state = {
+      ...baseState,
+      rawJobInput: "https://jobs.example.com/missing",
+    };
+    await expect(parseJobInput(state, {})).rejects.toThrow(
+      "Failed to fetch job posting",
+    );
   });
 
   it("throws when rawJobInput is empty", async () => {
-    const { parseJobInput } = await import("../../src/agent/nodes/parseJobInput.js");
+    const { parseJobInput } =
+      await import("../../src/agent/nodes/parseJobInput.js");
     const state = { ...baseState, rawJobInput: "" };
-    await expect(parseJobInput(state, {})).rejects.toThrow("rawJobInput is required");
+    await expect(parseJobInput(state, {})).rejects.toThrow(
+      "rawJobInput is required",
+    );
   });
 });

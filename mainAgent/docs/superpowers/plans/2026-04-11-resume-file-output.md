@@ -13,6 +13,7 @@
 ### Task 1: Add `draftVersion` to state
 
 **Files:**
+
 - Modify: `src/agent/state.ts`
 
 - [ ] **Step 1: Add the field**
@@ -86,6 +87,7 @@ git commit -m "feat: add draftVersion field to state"
 ### Task 2: Implement `writeResumeDraft` helper (TDD)
 
 **Files:**
+
 - Create: `src/agent/utils/writeResumeDraft.ts`
 - Create: `tests/utils/writeResumeDraft.test.ts`
 
@@ -243,6 +245,7 @@ git commit -m "feat: add writeResumeDraft helper with tests"
 ### Task 3: Update `tailorResume` node
 
 **Files:**
+
 - Modify: `src/agent/nodes/tailorResume.ts`
 
 - [ ] **Step 1: Update the node**
@@ -282,9 +285,10 @@ export const tailorResume = async (
     ),
   ]);
 
-  const draft = typeof result.content === "string"
-    ? result.content
-    : JSON.stringify(result.content);
+  const draft =
+    typeof result.content === "string"
+      ? result.content
+      : JSON.stringify(result.content);
 
   const filePath = writeResumeDraft(draft, state.jobDetails, 1);
 
@@ -316,6 +320,7 @@ git commit -m "feat: write resume draft to file in tailorResume node"
 ### Task 4: Update `reviseResume` node
 
 **Files:**
+
 - Modify: `src/agent/nodes/reviseResume.ts`
 
 - [ ] **Step 1: Update the node**
@@ -356,9 +361,10 @@ export const reviseResume = async (
     ),
   ]);
 
-  const newDraft = typeof result.content === "string"
-    ? result.content
-    : JSON.stringify(result.content);
+  const newDraft =
+    typeof result.content === "string"
+      ? result.content
+      : JSON.stringify(result.content);
 
   const newVersion = state.draftVersion + 1;
   const filePath = writeResumeDraft(newDraft, state.jobDetails, newVersion);

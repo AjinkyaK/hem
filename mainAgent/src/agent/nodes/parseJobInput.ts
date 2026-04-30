@@ -4,18 +4,25 @@ import { JSDOM } from "jsdom";
 import { StateAnnotation } from "../state.js";
 
 const isUrl = (input: string): boolean =>
-  input.trimStart().startsWith("http://") || input.trimStart().startsWith("https://");
+  input.trimStart().startsWith("http://") ||
+  input.trimStart().startsWith("https://");
 
 const fetchAndStripHtml = async (url: string): Promise<string> => {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch job posting: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch job posting: ${response.status} ${response.statusText}`,
+    );
   }
   const html = await response.text();
   const dom = new JSDOM(html, { url });
   const reader = new Readability(dom.window.document);
   const article = reader.parse();
-  return article?.textContent?.trim() ?? dom.window.document.body.textContent?.trim() ?? "";
+  return (
+    article?.textContent?.trim() ??
+    dom.window.document.body.textContent?.trim() ??
+    ""
+  );
 };
 
 export const parseJobInput = async (

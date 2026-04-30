@@ -12,9 +12,7 @@ export default {
     ],
   },
   // Allow Jest to transform ESM-only packages pulled in by jsdom
-  transformIgnorePatterns: [
-    "node_modules/(?!(@csstools|nwsapi|parse5)/)",
-  ],
+  transformIgnorePatterns: ["node_modules/(?!(@csstools|nwsapi|parse5)/)"],
   extensionsToTreatAsEsm: [".ts"],
   setupFiles: ["dotenv/config"],
   passWithNoTests: true,
