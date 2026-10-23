@@ -1,5 +1,12 @@
 .venv
 .pycache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/
 node_modules/
 .worktrees/
 .DS_Store

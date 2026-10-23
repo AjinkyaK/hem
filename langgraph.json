@@ -1,0 +1,9 @@
+{
+  "python_version": "3.14",
+  "graphs": {
+    "agent": "./src/agentic_resume_tailor/graph.py:graph"
+  },
+  "env": ".env",
+  "dependencies": ["."]
+}
+
