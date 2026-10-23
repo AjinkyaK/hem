@@ -3,11 +3,12 @@ import path from "path";
 import os from "os";
 import { JobDetails } from "../types.js";
 
-const DEFAULT_OUTPUT_DIR = path.join(
-  os.homedir(),
-  "ajinkyakale",
-  "TailoredResumes",
-);
+export function getDefaultOutputDir(): string {
+  return (
+    process.env.TAILORED_RESUME_DIR ||
+    path.join(os.homedir(), "TailoredResumes")
+  );
+}
 
 function slugify(str: string): string {
   return str
@@ -21,7 +22,7 @@ export function writeResumeDraft(
   draft: string,
   jobDetails: JobDetails,
   version: number,
-  outputDir: string = DEFAULT_OUTPUT_DIR,
+  outputDir: string = getDefaultOutputDir(),
 ): string {
   const company = slugify(jobDetails.company);
   const title = slugify(jobDetails.title);

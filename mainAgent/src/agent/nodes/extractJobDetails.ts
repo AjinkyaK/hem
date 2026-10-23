@@ -6,7 +6,7 @@ import { JobDetailsSchema } from "../types.js";
 import { extractJobDetailsSystemPrompt } from "../prompts/extractJobDetails.js";
 
 const structuredModel = new ChatAnthropic({
-  model: "claude-3-5-haiku-20241022",
+  model: "claude-haiku-4-5-20251001",
   apiKey: process.env.ANTHROPIC_API_KEY,
   maxRetries: 2,
 }).withStructuredOutput(JobDetailsSchema);

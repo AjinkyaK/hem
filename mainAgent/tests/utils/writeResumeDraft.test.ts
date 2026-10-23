@@ -72,4 +72,21 @@ describe("writeResumeDraft", () => {
     expect(path1).toBe(path2);
     expect(fs.readFileSync(path2, "utf-8")).toBe("# Resume");
   });
+
+  it("respects process.env.TAILORED_RESUME_DIR when outputDir is omitted", () => {
+    const customDir = path.join(tmpDir, "custom_env_dir");
+    const originalEnv = process.env.TAILORED_RESUME_DIR;
+    process.env.TAILORED_RESUME_DIR = customDir;
+    try {
+      const filePath = writeResumeDraft("# Resume", jobDetails, 1);
+      expect(filePath.startsWith(customDir)).toBe(true);
+      expect(fs.existsSync(filePath)).toBe(true);
+    } finally {
+      if (originalEnv !== undefined) {
+        process.env.TAILORED_RESUME_DIR = originalEnv;
+      } else {
+        delete process.env.TAILORED_RESUME_DIR;
+      }
+    }
+  });
 });
