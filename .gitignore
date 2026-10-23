@@ -6,3 +6,7 @@ node_modules/
 
 # LangGraph API
 .langgraph_api
+
+# IDE / Agent Settings
+.gemini/
+

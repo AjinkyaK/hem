@@ -18,11 +18,11 @@ const fetchAndStripHtml = async (url: string): Promise<string> => {
   const dom = new JSDOM(html, { url });
   const reader = new Readability(dom.window.document);
   const article = reader.parse();
-  return (
-    article?.textContent?.trim() ??
-    dom.window.document.body.textContent?.trim() ??
-    ""
-  );
+  const content = article?.textContent?.trim();
+  if (!content) {
+    throw new Error("Failed to extract readable job posting content from URL");
+  }
+  return content;
 };
 
 export const parseJobInput = async (
@@ -33,10 +33,11 @@ export const parseJobInput = async (
     throw new Error("rawJobInput is required");
   }
 
-  if (!isUrl(state.rawJobInput)) {
+  const trimmedInput = state.rawJobInput.trim();
+  if (!isUrl(trimmedInput)) {
     return { rawJobInput: state.rawJobInput };
   }
 
-  const text = await fetchAndStripHtml(state.rawJobInput);
+  const text = await fetchAndStripHtml(trimmedInput);
   return { rawJobInput: text };
 };
