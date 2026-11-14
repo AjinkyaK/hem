@@ -37,16 +37,16 @@ def test_slugifies_company_and_title(tmp_path, base_job_details):
     details = JobDetails(**base_job_details)
     file_path = write_resume_draft("# Resume", details, 1, str(tmp_path))
     filename = Path(file_path).name
-    assert filename == "stripe_inc_senior_software_engineer_v1.md"
+    assert filename == "stripe_inc_senior_software_engineer_rev1.md"
 
 
-def test_includes_version_number(tmp_path, base_job_details):
+def test_includes_revision_number(tmp_path, base_job_details):
     details = JobDetails(**base_job_details)
     file_path = write_resume_draft("# Resume", details, 3, str(tmp_path))
-    assert file_path.endswith("_v3.md")
+    assert file_path.endswith("_rev3.md")
 
 
-def test_writes_distinct_files_for_different_versions(tmp_path, base_job_details):
+def test_writes_distinct_files_for_different_revisions(tmp_path, base_job_details):
     details = JobDetails(**base_job_details)
     path1 = write_resume_draft("v1", details, 1, str(tmp_path))
     path2 = write_resume_draft("v2", details, 2, str(tmp_path))

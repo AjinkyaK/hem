@@ -12,8 +12,8 @@ async def run_tailor(job_input: str, resume_input: str):
     """Run the resume tailor workflow asynchronously with human review."""
     thread_config = {"configurable": {"thread_id": "cli_run"}}
     initial_state = {
-        "raw_job_input": job_input,
-        "raw_resume_input": resume_input,
+        "job_posting": job_input,
+        "base_resume": resume_input,
     }
 
     print("🚀 Starting Agentic Resume Tailor...")
@@ -31,7 +31,7 @@ async def run_tailor(job_input: str, resume_input: str):
                 await graph.aupdate_state(
                     thread_config,
                     {"user_feedback": feedback},
-                    as_node="review_draft",
+                    as_node="human_review",
                 )
         async for event in graph.astream(None, thread_config):
             for node_name, output in event.items():

@@ -25,7 +25,7 @@ def slugify(text: str) -> str:
 def write_resume_draft(
     draft: str,
     job_details: JobDetails,
-    version: int,
+    revision: int,
     output_dir: str | None = None,
 ) -> str:
     """Write resume draft markdown to disk and return absolute file path."""
@@ -34,7 +34,7 @@ def write_resume_draft(
     )
     company = slugify(job_details.company)
     title = slugify(job_details.title)
-    filename = f"{company}_{title}_v{version}.md"
+    filename = f"{company}_{title}_rev{revision}.md"
     file_path = target_dir / filename
 
     target_dir.mkdir(parents=True, exist_ok=True)

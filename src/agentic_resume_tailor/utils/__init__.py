@@ -6,4 +6,3 @@ from agentic_resume_tailor.utils.write_resume_draft import (
 )
 
 __all__ = ["get_default_output_dir", "write_resume_draft"]
-

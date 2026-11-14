@@ -46,37 +46,37 @@ async def test_tailor_resume_extracts_resume_draft(base_job_details):
     mock_model = AsyncMock()
     mock_model.ainvoke.return_value = TailorOutput(
         thinking="Phase 1 reasoning",
-        resume="# Tailored Resume\n\n## Professional summary\n...",
+        resume="# Resume Draft\n\n## Professional summary\n...",
     )
 
     state = {
         "messages": [],
-        "raw_job_input": "raw job text",
-        "raw_resume_input": "Original resume content",
+        "job_posting": "raw job text",
+        "base_resume": "Original resume content",
         "job_details": JobDetails(**base_job_details),
         "resume_draft": None,
-        "draft_version": 0,
+        "revision": 0,
         "user_feedback": None,
     }
 
     result = await tailor_resume(state, model=mock_model)
-    assert result["resume_draft"] == "# Tailored Resume\n\n## Professional summary\n..."
-    assert result["draft_version"] == 1
+    assert result["resume_draft"] == "# Resume Draft\n\n## Professional summary\n..."
+    assert result["revision"] == 1
     assert "user_feedback" not in result
     assert mock_model.ainvoke.await_count == 1
 
 
 @pytest.mark.asyncio
-async def test_tailor_resume_throws_when_raw_resume_input_empty(base_job_details):
+async def test_tailor_resume_throws_when_base_resume_empty(base_job_details):
     mock_model = AsyncMock()
     state = {
         "messages": [],
-        "raw_job_input": "raw job text",
-        "raw_resume_input": "   ",
+        "job_posting": "raw job text",
+        "base_resume": "   ",
         "job_details": JobDetails(**base_job_details),
     }
 
-    with pytest.raises(ValueError, match="rawResumeInput is empty"):
+    with pytest.raises(ValueError, match="base_resume is empty"):
         await tailor_resume(state, model=mock_model)
     assert mock_model.ainvoke.await_count == 0
 
@@ -86,11 +86,11 @@ async def test_tailor_resume_throws_when_job_details_null():
     mock_model = AsyncMock()
     state = {
         "messages": [],
-        "raw_job_input": "raw job text",
-        "raw_resume_input": "Original resume",
+        "job_posting": "raw job text",
+        "base_resume": "Original resume",
         "job_details": None,
     }
 
-    with pytest.raises(ValueError, match="jobDetails is null"):
+    with pytest.raises(ValueError, match="job_details is null"):
         await tailor_resume(state, model=mock_model)
     assert mock_model.ainvoke.await_count == 0

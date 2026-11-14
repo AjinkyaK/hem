@@ -1,59 +1,59 @@
-"""Unit tests for review_draft node."""
+"""Unit tests for human_review node."""
 
 from unittest.mock import MagicMock
 
 import pytest
 
-from agentic_resume_tailor.nodes.review_draft import review_draft
+from agentic_resume_tailor.nodes.human_review import human_review
 from agentic_resume_tailor.types import JobDetails
 
 
 @pytest.mark.asyncio
-async def test_review_draft_writes_file_and_returns_feedback(base_job_details):
-    mock_writer = MagicMock(return_value="/tmp/fake_v1.md")
+async def test_human_review_writes_file_and_returns_feedback(base_job_details):
+    mock_writer = MagicMock(return_value="/tmp/fake_rev1.md")
     mock_interrupt = MagicMock(return_value="approve")
 
     job_details = JobDetails(**base_job_details)
     state = {
         "messages": [],
-        "raw_job_input": "",
-        "raw_resume_input": "",
+        "job_posting": "",
+        "base_resume": "",
         "job_details": job_details,
-        "resume_draft": "# Tailored Resume",
-        "draft_version": 1,
+        "resume_draft": "# Resume Draft",
+        "revision": 1,
         "user_feedback": None,
     }
 
-    result = await review_draft(
+    result = await human_review(
         state,
         writer_func=mock_writer,
         interrupt_func=mock_interrupt,
     )
 
-    mock_writer.assert_called_once_with("# Tailored Resume", job_details, 1)
+    mock_writer.assert_called_once_with("# Resume Draft", job_details, 1)
     mock_interrupt.assert_called_once()
     assert result["user_feedback"] == "approve"
 
 
 @pytest.mark.asyncio
-async def test_review_draft_includes_file_path_in_interrupt(base_job_details):
-    mock_writer = MagicMock(return_value="/tmp/fake_v1.md")
+async def test_human_review_includes_file_path_in_interrupt(base_job_details):
+    mock_writer = MagicMock(return_value="/tmp/fake_rev1.md")
     mock_interrupt = MagicMock(return_value="approve")
 
     state = {
         "job_details": JobDetails(**base_job_details),
-        "resume_draft": "# Tailored Resume",
-        "draft_version": 1,
+        "resume_draft": "# Resume Draft",
+        "revision": 1,
     }
 
-    await review_draft(state, writer_func=mock_writer, interrupt_func=mock_interrupt)
+    await human_review(state, writer_func=mock_writer, interrupt_func=mock_interrupt)
     message = mock_interrupt.call_args[0][0]
-    assert "/tmp/fake_v1.md" in message
+    assert "/tmp/fake_rev1.md" in message
     assert "Type 'approve' to finalize" in message
 
 
 @pytest.mark.asyncio
-async def test_review_draft_throws_when_resume_draft_null(base_job_details):
+async def test_human_review_throws_when_resume_draft_null(base_job_details):
     mock_writer = MagicMock()
     mock_interrupt = MagicMock()
 
@@ -62,8 +62,8 @@ async def test_review_draft_throws_when_resume_draft_null(base_job_details):
         "resume_draft": None,
     }
 
-    with pytest.raises(ValueError, match="resumeDraft is null"):
-        await review_draft(
+    with pytest.raises(ValueError, match="resume_draft is null"):
+        await human_review(
             state, writer_func=mock_writer, interrupt_func=mock_interrupt
         )
     mock_writer.assert_not_called()
@@ -71,17 +71,17 @@ async def test_review_draft_throws_when_resume_draft_null(base_job_details):
 
 
 @pytest.mark.asyncio
-async def test_review_draft_throws_when_job_details_null():
+async def test_human_review_throws_when_job_details_null():
     mock_writer = MagicMock()
     mock_interrupt = MagicMock()
 
     state = {
         "job_details": None,
-        "resume_draft": "# Tailored Resume",
+        "resume_draft": "# Resume Draft",
     }
 
-    with pytest.raises(ValueError, match="jobDetails is null"):
-        await review_draft(
+    with pytest.raises(ValueError, match="job_details is null"):
+        await human_review(
             state, writer_func=mock_writer, interrupt_func=mock_interrupt
         )
     mock_writer.assert_not_called()
@@ -89,20 +89,20 @@ async def test_review_draft_throws_when_job_details_null():
 
 
 @pytest.mark.asyncio
-async def test_review_draft_is_idempotent(base_job_details):
-    mock_writer = MagicMock(return_value="/tmp/fake_v1.md")
+async def test_human_review_is_idempotent(base_job_details):
+    mock_writer = MagicMock(return_value="/tmp/fake_rev1.md")
     mock_interrupt = MagicMock(return_value="approve")
 
     state = {
         "job_details": JobDetails(**base_job_details),
-        "resume_draft": "# Tailored Resume",
-        "draft_version": 1,
+        "resume_draft": "# Resume Draft",
+        "revision": 1,
     }
 
-    result1 = await review_draft(
+    result1 = await human_review(
         state, writer_func=mock_writer, interrupt_func=mock_interrupt
     )
-    result2 = await review_draft(
+    result2 = await human_review(
         state, writer_func=mock_writer, interrupt_func=mock_interrupt
     )
 

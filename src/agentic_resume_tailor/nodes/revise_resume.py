@@ -26,19 +26,19 @@ async def revise_resume(
     """Revise resume draft based on human feedback."""
     resume_draft = state.get("resume_draft")
     if not resume_draft:
-        raise ValueError("reviseResume: resumeDraft is null")
+        raise ValueError("revise_resume: resume_draft is null")
     user_feedback = state.get("user_feedback")
     if not user_feedback:
-        raise ValueError("reviseResume: userFeedback is null")
+        raise ValueError("revise_resume: user_feedback is null")
     job_details = state.get("job_details")
     if not job_details:
-        raise ValueError("reviseResume: jobDetails is null")
+        raise ValueError("revise_resume: job_details is null")
 
     chat_model = model if model is not None else get_chat_model()
     result = await chat_model.ainvoke(
         [
             HumanMessage(
-                content=f"Here is the current resume draft:\n\n{resume_draft}\n\nPlease make the following changes only — preserve everything else:\n{user_feedback}"
+                content=f"Here is the current Resume Draft:\n\n{resume_draft}\n\nPlease make the following changes only — preserve everything else:\n{user_feedback}"
             )
         ]
     )
@@ -46,5 +46,5 @@ async def revise_resume(
     new_draft = (
         result.content if isinstance(result.content, str) else str(result.content)
     )
-    current_version = state.get("draft_version", 1)
-    return {"resume_draft": new_draft, "draft_version": current_version + 1}
+    current_revision = state.get("revision", 1)
+    return {"resume_draft": new_draft, "revision": current_revision + 1}

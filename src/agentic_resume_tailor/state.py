@@ -13,9 +13,9 @@ class AgentState(TypedDict, total=False):
     """The central state of the resume tailoring workflow."""
 
     messages: Annotated[list[BaseMessage], add_messages]
-    raw_job_input: str
-    raw_resume_input: str
+    job_posting: str
+    base_resume: str
     job_details: JobDetails | None
     resume_draft: str | None
-    draft_version: int
+    revision: int
     user_feedback: str | None

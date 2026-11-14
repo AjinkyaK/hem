@@ -22,4 +22,3 @@ def base_job_details():
         "highPriorityKeywords": ["distributed systems", "scalability"],
         "atsKeywords": ["Python", "SQL", "Kubernetes", "AWS"],
     }
-

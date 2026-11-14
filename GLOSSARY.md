@@ -1,30 +1,53 @@
 # Agentic Resume Tailor
 
-A LangGraph-based workflow that analyzes job postings, extracts structured requirements, and iteratively tailors a markdown resume with human-in-the-loop review.
+The project's goal is **Tailoring**: aligning a Candidate's Base Resume to a Job Posting.
 
 ## Language
 
+**Candidate**:
+The person whose resume is being tailored, and who performs Human Review.
+_Avoid_: user
+
 **Base Resume**:
-The candidate's un-tailored, source-of-truth resume provided as plain text.
-_Avoid_: Master resume, raw resume, resume template
+The Candidate's un-tailored, source-of-truth resume.
+_Avoid_: raw resume
 
 **Job Posting**:
-The target role's listing, provided as a public URL or raw text description.
-_Avoid_: Job description, JD, job listing, job spec
+The target role's listing, as the Candidate supplies it.
+_Avoid_: job description, JD
 
 **Job Details**:
-The structured 14-field extraction capturing required/preferred skills, seniority, themes, culture, and ATS keywords from a Job Posting.
-_Avoid_: Extracted job, job schema, job metadata
+The structured requirements extracted from a Job Posting.
+
+**Tailoring**:
+Producing a Resume Draft from a Base Resume and Job Details by rephrasing, reordering, and emphasising only what the Base Resume supports. Nothing is invented.
 
 **Resume Draft**:
-A tailored markdown version of the resume aligned to a specific Job Posting at a given revision number.
-_Avoid_: Tailored resume, draft version, resume output
+A markdown resume produced for one Job Posting.
+_Avoid_: tailored resume
+
+**Revision**:
+The sequence number of a Resume Draft: 1 for the draft Tailoring produces, +1 for each draft produced from Revision Feedback.
+_Avoid_: version, draft version
 
 **Human Review**:
-The checkpoint step where execution pauses via interrupt to allow candidate verification and feedback on a Resume Draft before finalization.
-_Avoid_: HITL step, approval gate, user review
+The pause where the Candidate reads a Resume Draft and either gives Revision Feedback or accepts it.
 
 **Revision Feedback**:
-Targeted critique or edit instructions provided by the candidate when requesting modifications to a Resume Draft.
-_Avoid_: User comments, change requests, review notes
+The Candidate's instructions for changing a Resume Draft.
+_Avoid_: user feedback
 
+## Relationships
+
+Base Resume + Job Posting → Job Details → Tailoring → Resume Draft → Human Review → (Revision Feedback → Resume Draft)*
+
+- A Candidate supplies one Base Resume and one Job Posting.
+- A Job Posting yields one Job Details.
+- Tailoring turns a Base Resume and Job Details into a Resume Draft at Revision 1.
+- Every Resume Draft goes through Human Review.
+- Revision Feedback on a Resume Draft produces the next Resume Draft, at Revision + 1.
+- Human Review ends with either Revision Feedback or the Candidate accepting the Resume Draft (term deferred; see Flagged gaps).
+
+## Flagged gaps
+
+- **Accepting a Resume Draft has no term yet.** Deferred to the interface refactor. Until then, `user_feedback`, `TAILORED_RESUME_DIR`, and `~/TailoredResumes` keep their names.

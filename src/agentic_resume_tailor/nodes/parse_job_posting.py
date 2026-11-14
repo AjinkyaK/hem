@@ -29,18 +29,18 @@ async def fetch_and_strip_html(url: str) -> str:
     return content.strip()
 
 
-async def parse_job_input(
+async def parse_job_posting(
     state: AgentState,
     _config: RunnableConfig | None = None,
 ) -> dict:
-    """Parse rawJobInput: return plain text as-is or fetch and parse if a URL."""
-    raw_input = state.get("raw_job_input", "")
-    if not raw_input or not raw_input.strip():
-        raise ValueError("raw_job_input is required")
+    """Parse job_posting: return plain text as-is or fetch and parse if a URL."""
+    job_posting = state.get("job_posting", "")
+    if not job_posting or not job_posting.strip():
+        raise ValueError("job_posting is required")
 
-    trimmed_input = raw_input.strip()
+    trimmed_input = job_posting.strip()
     if not is_url(trimmed_input):
-        return {"raw_job_input": state["raw_job_input"]}
+        return {"job_posting": state["job_posting"]}
 
     text = await fetch_and_strip_html(trimmed_input)
-    return {"raw_job_input": text}
+    return {"job_posting": text}

@@ -1,4 +1,4 @@
-"""Node for generating the initial tailored resume draft."""
+"""Node for generating the first Resume Draft (Revision 1) via Tailoring."""
 
 import json
 import os
@@ -28,13 +28,13 @@ async def tailor_resume(
     _config: RunnableConfig | None = None,
     model=None,
 ) -> dict:
-    """Generate the initial Resume Draft using base resume and Job Details."""
-    raw_resume = state.get("raw_resume_input", "")
-    if not raw_resume or not raw_resume.strip():
-        raise ValueError("tailorResume: rawResumeInput is empty")
+    """Generate the initial Resume Draft from the Base Resume and Job Details."""
+    base_resume = state.get("base_resume", "")
+    if not base_resume or not base_resume.strip():
+        raise ValueError("tailor_resume: base_resume is empty")
     job_details = state.get("job_details")
     if not job_details:
-        raise ValueError("tailorResume: jobDetails is null")
+        raise ValueError("tailor_resume: job_details is null")
 
     if isinstance(job_details, JobDetails):
         details_str = json.dumps(job_details.model_dump(by_alias=True), indent=2)
@@ -48,7 +48,7 @@ async def tailor_resume(
         [
             SystemMessage(content=TAILOR_RESUME_SYSTEM_PROMPT),
             HumanMessage(
-                content=f"Original Resume:\n{raw_resume}\n\nJob Details:\n{details_str}"
+                content=f"Base Resume:\n{base_resume}\n\nJob Details:\n{details_str}"
             ),
         ]
     )
@@ -56,4 +56,4 @@ async def tailor_resume(
     resume_text = (
         result.resume if isinstance(result, TailorOutput) else result["resume"]
     )
-    return {"resume_draft": resume_text, "draft_version": 1}
+    return {"resume_draft": resume_text, "revision": 1}

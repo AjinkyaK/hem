@@ -27,16 +27,16 @@ async def extract_job_details(
     _config: RunnableConfig | None = None,
     model=None,
 ) -> dict:
-    """Extract 14 structured Job Details fields from raw_job_input."""
-    raw_input = state.get("raw_job_input", "")
-    if not raw_input or not raw_input.strip():
-        raise ValueError("extractJobDetails: raw_job_input is empty")
+    """Extract 14 structured Job Details fields from job_posting."""
+    job_posting = state.get("job_posting", "")
+    if not job_posting or not job_posting.strip():
+        raise ValueError("extract_job_details: job_posting is empty")
 
     structured_model = model if model is not None else get_structured_model()
     result = await structured_model.ainvoke(
         [
             SystemMessage(content=EXTRACT_JOB_DETAILS_SYSTEM_PROMPT),
-            HumanMessage(content=raw_input),
+            HumanMessage(content=job_posting),
         ]
     )
 

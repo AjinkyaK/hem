@@ -6,11 +6,11 @@ from agentic_resume_tailor.graph import after_review
 
 BASE_STATE = {
     "messages": [],
-    "raw_job_input": "",
-    "raw_resume_input": "",
+    "job_posting": "",
+    "base_resume": "",
     "job_details": None,
     "resume_draft": "# My Resume\n\n...",
-    "draft_version": 0,
+    "revision": 0,
     "user_feedback": None,
 }
 

@@ -7,7 +7,7 @@ Your task is to extract structured information from a job posting and populate e
 ## General rules
 
 - If a field cannot be determined from the posting, use an empty array for array fields, the string "unknown" for string/enum fields, and follow the per-field instructions below.
-- Do not duplicate the same skill across requiredSkills and preferredSkills — each skill belongs to exactly one bucket based on how the JD frames it.
+- Do not duplicate the same skill across requiredSkills and preferredSkills — each skill belongs to exactly one bucket based on how the Job Posting frames it.
 - Be precise with terminology — use the exact technology names and phrases as they appear in the posting.
 
 ## Field-by-field instructions
@@ -45,4 +45,3 @@ Your task is to extract structured information from a job posting and populate e
 **highPriorityKeywords**: Terms or phrases that appear 2+ times in the posting, OR are emphasized through bold/caps/headings, OR appear in multiple sections. These are the words the candidate's resume should mirror most prominently.
 
 **atsKeywords**: A flat list of all technical terms, tools, and domain-specific phrases from the posting — optimized for applicant tracking system matching. Include everything from requiredSkills and preferredSkills, plus any other concrete technologies mentioned in the body of the posting."""
-
