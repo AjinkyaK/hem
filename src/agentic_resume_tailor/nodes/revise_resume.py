@@ -1,4 +1,4 @@
-"""Node for incorporating candidate Revision Feedback into a new Resume Draft."""
+"""Node for incorporating applicant Revision Feedback into a new Resume Draft."""
 
 import os
 

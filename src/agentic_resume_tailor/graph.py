@@ -11,7 +11,7 @@ from agentic_resume_tailor.state import AgentState
 
 
 def after_review(state: AgentState) -> str:
-    """Route to revision or end based on the Candidate's Human Review response."""
+    """Route to revision or end based on the Applicant's Human Review response."""
     feedback = state.get("user_feedback")
     if not feedback:
         return END

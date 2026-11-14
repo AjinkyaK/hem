@@ -42,6 +42,6 @@ Your task is to extract structured information from a job posting and populate e
 
 **companyValuesCulture**: Any mentioned company values, mission, or cultural aspects worth aligning with in a resume summary. Examples: "customer obsession", "bias for action", "ownership culture". Empty array if none stated.
 
-**highPriorityKeywords**: Terms or phrases that appear 2+ times in the posting, OR are emphasized through bold/caps/headings, OR appear in multiple sections. These are the words the candidate's resume should mirror most prominently.
+**highPriorityKeywords**: Terms or phrases that appear 2+ times in the posting, OR are emphasized through bold/caps/headings, OR appear in multiple sections. These are the words the applicant's resume should mirror most prominently.
 
 **atsKeywords**: A flat list of all technical terms, tools, and domain-specific phrases from the posting — optimized for applicant tracking system matching. Include everything from requiredSkills and preferredSkills, plus any other concrete technologies mentioned in the body of the posting."""
