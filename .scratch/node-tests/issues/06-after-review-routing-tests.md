@@ -1,6 +1,6 @@
 # Issue 06: Unit Tests for afterReview Conditional Edge
 
-Status: ready-for-agent
+Status: resolved
 Type: task
 Blocked by: 04
 

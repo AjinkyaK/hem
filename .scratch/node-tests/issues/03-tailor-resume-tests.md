@@ -1,6 +1,6 @@
 # Issue 03: Unit Tests for tailorResume Node
 
-Status: ready-for-agent
+Status: resolved
 Type: task
 Blocked by: 02
 

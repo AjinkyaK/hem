@@ -1,6 +1,6 @@
 # Issue 02: Unit Tests for extractJobDetails Node
 
-Status: ready-for-agent
+Status: resolved
 Type: task
 Blocked by: 01
 

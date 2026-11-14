@@ -1,6 +1,6 @@
 # Issue 04: Unit Tests for reviewDraft Node
 
-Status: ready-for-agent
+Status: resolved
 Type: task
 Blocked by: 03
 

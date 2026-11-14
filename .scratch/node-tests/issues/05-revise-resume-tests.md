@@ -1,6 +1,6 @@
 # Issue 05: Unit Tests for reviseResume Node
 
-Status: ready-for-agent
+Status: resolved
 Type: task
 Blocked by: 04
 
