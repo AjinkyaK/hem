@@ -14,6 +14,10 @@ Canonical 5-role defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `rea
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at repo root). See `docs/agents/domain.md`.
 
+### Coding standards
+
+Before writing or reviewing code, read `CODING_STANDARDS.md`.
+
 ### Checks and merging
 
 - Before calling work done, run `uv run pre-commit run --all-files` and `uv run pytest`, and fix anything that fails.
