@@ -1,7 +1,7 @@
 """Node for extracting structured Job Details from a Job Posting."""
 
 import os
-from typing import cast
+from typing import TypedDict
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -15,15 +15,25 @@ from hem.state import AgentState
 from hem.types import JobDetails
 
 
+class _ApiKeyKwargs(TypedDict, total=False):
+    api_key: SecretStr
+
+
 def get_structured_model():
     """Build structured ChatAnthropic model for JobDetails extraction."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    # Pass the key only when set: an explicit key outranks a LangSmith gateway
+    # key, while an omitted one lets ChatAnthropic resolve it from the env.
+    key_kwargs: _ApiKeyKwargs = {}
+    if api_key is not None:
+        key_kwargs["api_key"] = SecretStr(api_key)
     return ChatAnthropic(
         model_name="claude-haiku-4-5-20251001",
-        # None is fine at runtime: ChatAnthropic then resolves the key itself.
-        api_key=cast(SecretStr, os.environ.get("ANTHROPIC_API_KEY")),
         max_retries=2,
+        # Runtime defaults; pyright reads the positional Field(None) as required.
         timeout=None,
         stop=None,
+        **key_kwargs,
     ).with_structured_output(JobDetails)
 
 
