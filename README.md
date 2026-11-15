@@ -25,3 +25,5 @@ uv run ruff check
 uv run ruff format
 ```
 
+The `ci` GitHub Actions job runs all four checks (`ruff check`, `ruff format --check`, `pyright`, `pytest`) on every PR and every push to `main`, and it is the required status check.
+
