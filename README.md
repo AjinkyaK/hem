@@ -13,15 +13,61 @@ A LangGraph-based workflow that tailors an Applicant's Base Resume to a Job Post
 
 ## Development
 
+### Setup
+
 ```bash
-# Setup virtual environment and sync dependencies
 uv sync
-
-# Run tests
-uv run pytest
-
-# Lint and format
-uv run ruff check
-uv run ruff format
+uv run pre-commit install
 ```
 
+`uv sync` doesn't install the git hook, so run `uv run pre-commit install` once per clone (worktrees share it). The hook is check-only: it never rewrites files.
+
+### Checks
+
+| Command | Pre-commit hook? | CI? |
+|---|---|---|
+| `uv run ruff check` | Yes, on staged Python files | Yes |
+| `uv run ruff format --check` | Yes, on staged Python files | Yes |
+| `uv run pyright` | Yes, on the whole project | Yes |
+| `uv run pytest` | No | Yes |
+
+Tests run only in CI, to keep the hook under 3s.
+
+### Run everything locally
+
+```bash
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+### Fix
+
+```bash
+uv run ruff check --fix && uv run ruff format
+```
+
+### CI
+
+The `ci` GitHub Actions job runs all four checks (`ruff check`, `ruff format --check`, `pyright`, `pytest`) on every PR and every push to `main`, and it is the required status check.
+
+### Merging to main
+
+Changes reach `main` only through a pull request, which is squash-merged once `ci` passes. Nobody pushes to `main` directly, agents included. The repository ruleset `main` enforces this with no bypass for anyone: it requires a PR and a green `ci` check, allows squash merges only, keeps history linear, and blocks force-pushes and deletion of `main`.
+
+The ruleset is recorded in [`.github/rulesets/main.json`](.github/rulesets/main.json). GitHub doesn't sync this file, so edits made to the ruleset in the UI make it stale.
+
+**Emergency fix.** If a fix must land on `main` without a PR, an admin disables the ruleset, pushes the fix, then re-enables it straight away:
+
+```bash
+# Look up the ruleset's id
+RULESET_ID=$(gh api repos/AjinkyaK/hem/rulesets --jq '.[] | select(.name == "main") | .id')
+
+# Disable it
+gh api --method PUT "repos/AjinkyaK/hem/rulesets/$RULESET_ID" -f enforcement=disabled
+
+# Push the fix
+git push origin main
+
+# Re-enable it
+gh api --method PUT "repos/AjinkyaK/hem/rulesets/$RULESET_ID" -f enforcement=active
+```

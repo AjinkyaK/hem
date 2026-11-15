@@ -6,8 +6,9 @@ import httpx
 import pytest
 
 from hem.nodes.parse_job_posting import is_url, parse_job_posting
+from hem.state import AgentState
 
-BASE_STATE = {
+BASE_STATE: AgentState = {
     "messages": [],
     "job_posting": "",
     "base_resume": "My resume content",
@@ -28,14 +29,14 @@ def test_is_url():
 
 @pytest.mark.asyncio
 async def test_returns_plain_text_unchanged_when_not_url():
-    state = {**BASE_STATE, "job_posting": "Senior Engineer at Acme Corp..."}
+    state: AgentState = {**BASE_STATE, "job_posting": "Senior Engineer at Acme Corp..."}
     result = await parse_job_posting(state)
     assert result["job_posting"] == "Senior Engineer at Acme Corp..."
 
 
 @pytest.mark.asyncio
 async def test_returns_plain_text_unchanged_for_non_http_protocols():
-    state = {**BASE_STATE, "job_posting": "ftp://jobs.example.com/spec.txt"}
+    state: AgentState = {**BASE_STATE, "job_posting": "ftp://jobs.example.com/spec.txt"}
     result = await parse_job_posting(state)
     assert result["job_posting"] == "ftp://jobs.example.com/spec.txt"
 
@@ -51,7 +52,7 @@ async def test_fetches_and_strips_html_when_input_is_url():
         with patch(
             "trafilatura.extract", return_value="Job posting text here"
         ) as mock_extract:
-            state = {
+            state: AgentState = {
                 **BASE_STATE,
                 "job_posting": "https://jobs.example.com/posting/123",
             }
@@ -72,7 +73,7 @@ async def test_handles_urls_with_leading_and_trailing_whitespace():
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_resp
         with patch("trafilatura.extract", return_value="Job posting text here"):
-            state = {
+            state: AgentState = {
                 **BASE_STATE,
                 "job_posting": "   https://jobs.example.com/posting/123   ",
             }
@@ -88,7 +89,10 @@ async def test_throws_when_fetch_response_not_ok():
     mock_resp = httpx.Response(404, text="Not found")
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_resp
-        state = {**BASE_STATE, "job_posting": "https://jobs.example.com/missing"}
+        state: AgentState = {
+            **BASE_STATE,
+            "job_posting": "https://jobs.example.com/missing",
+        }
         with pytest.raises(
             RuntimeError, match="Failed to fetch job posting: 404 Not Found"
         ):
@@ -99,7 +103,7 @@ async def test_throws_when_fetch_response_not_ok():
 async def test_throws_when_fetch_network_call_rejects():
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
         mock_get.side_effect = httpx.ConnectError("Network connection refused")
-        state = {
+        state: AgentState = {
             **BASE_STATE,
             "job_posting": "https://jobs.example.com/network-error",
         }
@@ -109,14 +113,14 @@ async def test_throws_when_fetch_network_call_rejects():
 
 @pytest.mark.asyncio
 async def test_throws_when_job_posting_empty():
-    state = {**BASE_STATE, "job_posting": ""}
+    state: AgentState = {**BASE_STATE, "job_posting": ""}
     with pytest.raises(ValueError, match="job_posting is required"):
         await parse_job_posting(state)
 
 
 @pytest.mark.asyncio
 async def test_throws_when_job_posting_whitespace_only():
-    state = {**BASE_STATE, "job_posting": "   \n\t  "}
+    state: AgentState = {**BASE_STATE, "job_posting": "   \n\t  "}
     with pytest.raises(ValueError, match="job_posting is required"):
         await parse_job_posting(state)
 
@@ -129,7 +133,7 @@ async def test_terminates_early_when_extraction_returns_none():
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_resp
         with patch("trafilatura.extract", return_value=None):
-            state = {
+            state: AgentState = {
                 **BASE_STATE,
                 "job_posting": "https://jobs.example.com/unreadable",
             }
@@ -148,7 +152,7 @@ async def test_terminates_early_when_extraction_returns_empty_string():
     with patch("httpx.AsyncClient.get", new_callable=AsyncMock) as mock_get:
         mock_get.return_value = mock_resp
         with patch("trafilatura.extract", return_value="   "):
-            state = {
+            state: AgentState = {
                 **BASE_STATE,
                 "job_posting": "https://jobs.example.com/empty-article",
             }
@@ -161,6 +165,6 @@ async def test_terminates_early_when_extraction_returns_empty_string():
 
 @pytest.mark.asyncio
 async def test_strictly_returns_only_job_posting():
-    state = {**BASE_STATE, "job_posting": "Software Engineer opening"}
+    state: AgentState = {**BASE_STATE, "job_posting": "Software Engineer opening"}
     result = await parse_job_posting(state)
     assert result == {"job_posting": "Software Engineer opening"}

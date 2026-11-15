@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from hem.nodes.revise_resume import revise_resume
+from hem.state import AgentState
 from hem.types import JobDetails
 
 
@@ -15,7 +16,7 @@ async def test_revise_resume_increments_revision_and_updates_draft(base_job_deta
     mock_response.content = "# Revised Resume"
     mock_model.ainvoke.return_value = mock_response
 
-    state = {
+    state: AgentState = {
         "messages": [],
         "job_posting": "",
         "base_resume": "",
@@ -35,7 +36,7 @@ async def test_revise_resume_increments_revision_and_updates_draft(base_job_deta
 @pytest.mark.asyncio
 async def test_revise_resume_throws_when_resume_draft_null(base_job_details):
     mock_model = AsyncMock()
-    state = {
+    state: AgentState = {
         "job_details": JobDetails(**base_job_details),
         "resume_draft": None,
         "user_feedback": "Make summary shorter",
@@ -49,7 +50,7 @@ async def test_revise_resume_throws_when_resume_draft_null(base_job_details):
 @pytest.mark.asyncio
 async def test_revise_resume_throws_when_user_feedback_null(base_job_details):
     mock_model = AsyncMock()
-    state = {
+    state: AgentState = {
         "job_details": JobDetails(**base_job_details),
         "resume_draft": "# Old Resume",
         "user_feedback": None,
@@ -63,7 +64,7 @@ async def test_revise_resume_throws_when_user_feedback_null(base_job_details):
 @pytest.mark.asyncio
 async def test_revise_resume_throws_when_job_details_null():
     mock_model = AsyncMock()
-    state = {
+    state: AgentState = {
         "job_details": None,
         "resume_draft": "# Old Resume",
         "user_feedback": "Make summary shorter",

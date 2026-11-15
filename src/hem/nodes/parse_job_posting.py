@@ -40,7 +40,7 @@ async def parse_job_posting(
 
     trimmed_input = job_posting.strip()
     if not is_url(trimmed_input):
-        return {"job_posting": state["job_posting"]}
+        return {"job_posting": job_posting}
 
     text = await fetch_and_strip_html(trimmed_input)
     return {"job_posting": text}
