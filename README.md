@@ -27,3 +27,25 @@ uv run ruff format
 
 The `ci` GitHub Actions job runs all four checks (`ruff check`, `ruff format --check`, `pyright`, `pytest`) on every PR and every push to `main`, and it is the required status check.
 
+### Merging to main
+
+Changes reach `main` only through a pull request, which is squash-merged once `ci` passes. Nobody pushes to `main` directly, agents included. The repository ruleset `main` enforces this with no bypass for anyone: it requires a PR and a green `ci` check, allows squash merges only, keeps history linear, and blocks force-pushes and deletion of `main`.
+
+The ruleset is recorded in [`.github/rulesets/main.json`](.github/rulesets/main.json). GitHub doesn't sync this file, so edits made to the ruleset in the UI make it stale.
+
+**Emergency fix.** If a fix must land on `main` without a PR, an admin disables the ruleset, pushes the fix, then re-enables it straight away:
+
+```bash
+# Look up the ruleset's id
+RULESET_ID=$(gh api repos/AjinkyaK/hem/rulesets --jq '.[] | select(.name == "main") | .id')
+
+# Disable it
+gh api --method PUT "repos/AjinkyaK/hem/rulesets/$RULESET_ID" -f enforcement=disabled
+
+# Push the fix
+git push origin main
+
+# Re-enable it
+gh api --method PUT "repos/AjinkyaK/hem/rulesets/$RULESET_ID" -f enforcement=active
+```
+

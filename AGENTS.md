@@ -13,3 +13,9 @@ Canonical 5-role defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `rea
 ### Domain docs
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at repo root). See `docs/agents/domain.md`.
+
+### Checks and merging
+
+- Never push to `main`. Open a PR; it is squash-merged once `ci` passes. Never disable the ruleset.
+
+See README `## Development`.
