@@ -1,10 +1,12 @@
 """Node for incorporating applicant Revision Feedback into a new Resume Draft."""
 
 import os
+from typing import cast
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 from langchain_core.runnables import RunnableConfig
+from pydantic import SecretStr
 
 from hem.state import AgentState
 
@@ -12,9 +14,12 @@ from hem.state import AgentState
 def get_chat_model():
     """Build ChatAnthropic model for draft revisions."""
     return ChatAnthropic(
-        model="claude-haiku-4-5-20251001",
-        api_key=os.environ.get("ANTHROPIC_API_KEY"),
+        model_name="claude-haiku-4-5-20251001",
+        # None is fine at runtime: ChatAnthropic then resolves the key itself.
+        api_key=cast(SecretStr, os.environ.get("ANTHROPIC_API_KEY")),
         max_retries=2,
+        timeout=None,
+        stop=None,
     )
 
 

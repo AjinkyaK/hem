@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from hem.nodes.tailor_resume import tailor_resume
+from hem.state import AgentState
 from hem.types import JobDetails, TailorOutput
 
 
@@ -20,19 +21,19 @@ def test_validates_complete_valid_tailor_output():
 
 def test_rejects_missing_thinking():
     with pytest.raises(ValidationError):
-        TailorOutput(resume="# Resume")
+        TailorOutput(resume="# Resume")  # pyright: ignore[reportCallIssue]
 
 
 def test_rejects_missing_resume():
     with pytest.raises(ValidationError):
-        TailorOutput(thinking="Reasoning")
+        TailorOutput(thinking="Reasoning")  # pyright: ignore[reportCallIssue]
 
 
 def test_rejects_non_string_fields():
     with pytest.raises(ValidationError):
-        TailorOutput(thinking=123, resume="# Resume")
+        TailorOutput(thinking=123, resume="# Resume")  # pyright: ignore[reportArgumentType]
     with pytest.raises(ValidationError):
-        TailorOutput(thinking="Reasoning", resume={"content": "# Resume"})
+        TailorOutput(thinking="Reasoning", resume={"content": "# Resume"})  # pyright: ignore[reportArgumentType]
 
 
 def test_accepts_empty_strings_for_both_fields():
@@ -49,7 +50,7 @@ async def test_tailor_resume_extracts_resume_draft(base_job_details):
         resume="# Resume Draft\n\n## Professional summary\n...",
     )
 
-    state = {
+    state: AgentState = {
         "messages": [],
         "job_posting": "raw job text",
         "base_resume": "Original resume content",
@@ -69,7 +70,7 @@ async def test_tailor_resume_extracts_resume_draft(base_job_details):
 @pytest.mark.asyncio
 async def test_tailor_resume_throws_when_base_resume_empty(base_job_details):
     mock_model = AsyncMock()
-    state = {
+    state: AgentState = {
         "messages": [],
         "job_posting": "raw job text",
         "base_resume": "   ",
@@ -84,7 +85,7 @@ async def test_tailor_resume_throws_when_base_resume_empty(base_job_details):
 @pytest.mark.asyncio
 async def test_tailor_resume_throws_when_job_details_null():
     mock_model = AsyncMock()
-    state = {
+    state: AgentState = {
         "messages": [],
         "job_posting": "raw job text",
         "base_resume": "Original resume",

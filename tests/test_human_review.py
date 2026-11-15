@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from hem.nodes.human_review import human_review
+from hem.state import AgentState
 from hem.types import JobDetails
 
 
@@ -14,7 +15,7 @@ async def test_human_review_writes_file_and_returns_feedback(base_job_details):
     mock_interrupt = MagicMock(return_value="approve")
 
     job_details = JobDetails(**base_job_details)
-    state = {
+    state: AgentState = {
         "messages": [],
         "job_posting": "",
         "base_resume": "",
@@ -40,7 +41,7 @@ async def test_human_review_includes_file_path_in_interrupt(base_job_details):
     mock_writer = MagicMock(return_value="/tmp/fake_rev1.md")
     mock_interrupt = MagicMock(return_value="approve")
 
-    state = {
+    state: AgentState = {
         "job_details": JobDetails(**base_job_details),
         "resume_draft": "# Resume Draft",
         "revision": 1,
@@ -57,7 +58,7 @@ async def test_human_review_throws_when_resume_draft_null(base_job_details):
     mock_writer = MagicMock()
     mock_interrupt = MagicMock()
 
-    state = {
+    state: AgentState = {
         "job_details": JobDetails(**base_job_details),
         "resume_draft": None,
     }
@@ -75,7 +76,7 @@ async def test_human_review_throws_when_job_details_null():
     mock_writer = MagicMock()
     mock_interrupt = MagicMock()
 
-    state = {
+    state: AgentState = {
         "job_details": None,
         "resume_draft": "# Resume Draft",
     }
@@ -93,7 +94,7 @@ async def test_human_review_is_idempotent(base_job_details):
     mock_writer = MagicMock(return_value="/tmp/fake_rev1.md")
     mock_interrupt = MagicMock(return_value="approve")
 
-    state = {
+    state: AgentState = {
         "job_details": JobDetails(**base_job_details),
         "resume_draft": "# Resume Draft",
         "revision": 1,

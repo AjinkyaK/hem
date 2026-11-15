@@ -1,10 +1,12 @@
 """Node for extracting structured Job Details from a Job Posting."""
 
 import os
+from typing import cast
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
+from pydantic import SecretStr
 
 from hem.prompts.extract_job_details import (
     EXTRACT_JOB_DETAILS_SYSTEM_PROMPT,
@@ -16,9 +18,12 @@ from hem.types import JobDetails
 def get_structured_model():
     """Build structured ChatAnthropic model for JobDetails extraction."""
     return ChatAnthropic(
-        model="claude-haiku-4-5-20251001",
-        api_key=os.environ.get("ANTHROPIC_API_KEY"),
+        model_name="claude-haiku-4-5-20251001",
+        # None is fine at runtime: ChatAnthropic then resolves the key itself.
+        api_key=cast(SecretStr, os.environ.get("ANTHROPIC_API_KEY")),
         max_retries=2,
+        timeout=None,
+        stop=None,
     ).with_structured_output(JobDetails)
 
 

@@ -15,7 +15,7 @@ def test_validates_complete_valid_job_details(base_job_details):
 
 def test_rejects_missing_required_fields():
     with pytest.raises(ValidationError):
-        JobDetails(title="Engineer")
+        JobDetails(title="Engineer")  # pyright: ignore[reportCallIssue]
 
 
 def test_rejects_non_array_skills_fields(base_job_details):

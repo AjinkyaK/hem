@@ -3,8 +3,9 @@
 from langgraph.graph import END
 
 from hem.graph import after_review
+from hem.state import AgentState
 
-BASE_STATE = {
+BASE_STATE: AgentState = {
     "messages": [],
     "job_posting": "",
     "base_resume": "",
@@ -16,25 +17,25 @@ BASE_STATE = {
 
 
 def test_routes_to_end_when_user_feedback_is_approve():
-    state = {**BASE_STATE, "user_feedback": "approve"}
+    state: AgentState = {**BASE_STATE, "user_feedback": "approve"}
     assert after_review(state) == END
 
 
 def test_routes_to_end_when_user_feedback_is_approve_case_insensitive():
-    state = {**BASE_STATE, "user_feedback": "Approve"}
+    state: AgentState = {**BASE_STATE, "user_feedback": "Approve"}
     assert after_review(state) == END
 
 
 def test_routes_to_end_when_user_feedback_is_approve_with_whitespace():
-    state = {**BASE_STATE, "user_feedback": "  APPROVE  "}
+    state: AgentState = {**BASE_STATE, "user_feedback": "  APPROVE  "}
     assert after_review(state) == END
 
 
 def test_routes_to_revise_resume_when_user_feedback_is_feedback_text():
-    state = {**BASE_STATE, "user_feedback": "Make the summary shorter"}
+    state: AgentState = {**BASE_STATE, "user_feedback": "Make the summary shorter"}
     assert after_review(state) == "revise_resume"
 
 
 def test_routes_to_end_when_user_feedback_is_none():
-    state = {**BASE_STATE, "user_feedback": None}
+    state: AgentState = {**BASE_STATE, "user_feedback": None}
     assert after_review(state) == END

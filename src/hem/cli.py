@@ -5,13 +5,16 @@ import asyncio
 import sys
 from pathlib import Path
 
+from langchain_core.runnables import RunnableConfig
+
 from hem.graph import graph
+from hem.state import AgentState
 
 
 async def run_tailor(job_input: str, resume_input: str):
     """Run the resume tailor workflow asynchronously with human review."""
-    thread_config = {"configurable": {"thread_id": "cli_run"}}
-    initial_state = {
+    thread_config: RunnableConfig = {"configurable": {"thread_id": "cli_run"}}
+    initial_state: AgentState = {
         "job_posting": job_input,
         "base_resume": resume_input,
     }

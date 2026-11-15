@@ -2,10 +2,12 @@
 
 import json
 import os
+from typing import cast
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
+from pydantic import SecretStr
 
 from hem.prompts.tailor_resume import (
     TAILOR_RESUME_SYSTEM_PROMPT,
@@ -17,9 +19,12 @@ from hem.types import JobDetails, TailorOutput
 def get_structured_model():
     """Build structured ChatAnthropic model for TailorOutput."""
     return ChatAnthropic(
-        model="claude-haiku-4-5-20251001",
-        api_key=os.environ.get("ANTHROPIC_API_KEY"),
+        model_name="claude-haiku-4-5-20251001",
+        # None is fine at runtime: ChatAnthropic then resolves the key itself.
+        api_key=cast(SecretStr, os.environ.get("ANTHROPIC_API_KEY")),
         max_retries=2,
+        timeout=None,
+        stop=None,
     ).with_structured_output(TailorOutput)
 
 
@@ -54,6 +59,8 @@ async def tailor_resume(
     )
 
     resume_text = (
-        result.resume if isinstance(result, TailorOutput) else result["resume"]
+        result.resume
+        if isinstance(result, TailorOutput)
+        else cast(dict, result)["resume"]
     )
     return {"resume_draft": resume_text, "revision": 1}
