@@ -3,8 +3,8 @@
 import os
 from pathlib import Path
 
-from agentic_resume_tailor.types import JobDetails
-from agentic_resume_tailor.utils.write_resume_draft import (
+from hem.types import JobDetails
+from hem.utils.write_resume_draft import (
     slugify,
     write_resume_draft,
 )

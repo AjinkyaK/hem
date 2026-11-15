@@ -1,13 +1,13 @@
-"""Graph construction and routing for Agentic Resume Tailor."""
+"""Graph construction and routing for Hem."""
 
 from langgraph.graph import END, START, StateGraph
 
-from agentic_resume_tailor.nodes.extract_job_details import extract_job_details
-from agentic_resume_tailor.nodes.human_review import human_review
-from agentic_resume_tailor.nodes.parse_job_posting import parse_job_posting
-from agentic_resume_tailor.nodes.revise_resume import revise_resume
-from agentic_resume_tailor.nodes.tailor_resume import tailor_resume
-from agentic_resume_tailor.state import AgentState
+from hem.nodes.extract_job_details import extract_job_details
+from hem.nodes.human_review import human_review
+from hem.nodes.parse_job_posting import parse_job_posting
+from hem.nodes.revise_resume import revise_resume
+from hem.nodes.tailor_resume import tailor_resume
+from hem.state import AgentState
 
 
 def after_review(state: AgentState) -> str:

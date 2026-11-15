@@ -7,11 +7,11 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 
-from agentic_resume_tailor.prompts.tailor_resume import (
+from hem.prompts.tailor_resume import (
     TAILOR_RESUME_SYSTEM_PROMPT,
 )
-from agentic_resume_tailor.state import AgentState
-from agentic_resume_tailor.types import JobDetails, TailorOutput
+from hem.state import AgentState
+from hem.types import JobDetails, TailorOutput
 
 
 def get_structured_model():

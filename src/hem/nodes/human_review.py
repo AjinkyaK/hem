@@ -3,8 +3,8 @@
 from langchain_core.runnables import RunnableConfig
 from langgraph.types import interrupt
 
-from agentic_resume_tailor.state import AgentState
-from agentic_resume_tailor.utils.write_resume_draft import write_resume_draft
+from hem.state import AgentState
+from hem.utils.write_resume_draft import write_resume_draft
 
 
 async def human_review(

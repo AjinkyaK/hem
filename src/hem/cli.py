@@ -5,7 +5,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-from agentic_resume_tailor.graph import graph
+from hem.graph import graph
 
 
 async def run_tailor(job_input: str, resume_input: str):
@@ -16,7 +16,7 @@ async def run_tailor(job_input: str, resume_input: str):
         "base_resume": resume_input,
     }
 
-    print("🚀 Starting Agentic Resume Tailor...")
+    print("🚀 Starting Hem...")
     async for event in graph.astream(initial_state, thread_config):
         for node_name, output in event.items():
             print(f"✓ Node [{node_name}] finished.")
@@ -43,7 +43,7 @@ async def run_tailor(job_input: str, resume_input: str):
 
 def main():
     """Main CLI entrypoint."""
-    parser = argparse.ArgumentParser(description="Agentic Resume Tailor CLI")
+    parser = argparse.ArgumentParser(description="Hem CLI")
     parser.add_argument(
         "--job",
         "-j",

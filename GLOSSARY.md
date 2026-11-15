@@ -1,4 +1,4 @@
-# Agentic Resume Tailor
+# Hem
 
 The project's goal is **Tailoring**: aligning an Applicant's Base Resume to a Job Posting.
 

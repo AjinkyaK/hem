@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 import pytest
 
-from agentic_resume_tailor.nodes.parse_job_posting import is_url, parse_job_posting
+from hem.nodes.parse_job_posting import is_url, parse_job_posting
 
 BASE_STATE = {
     "messages": [],

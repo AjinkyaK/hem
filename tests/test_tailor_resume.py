@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import ValidationError
 
-from agentic_resume_tailor.nodes.tailor_resume import tailor_resume
-from agentic_resume_tailor.types import JobDetails, TailorOutput
+from hem.nodes.tailor_resume import tailor_resume
+from hem.types import JobDetails, TailorOutput
 
 
 def test_validates_complete_valid_tailor_output():

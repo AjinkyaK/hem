@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from agentic_resume_tailor.nodes.human_review import human_review
-from agentic_resume_tailor.types import JobDetails
+from hem.nodes.human_review import human_review
+from hem.types import JobDetails
 
 
 @pytest.mark.asyncio

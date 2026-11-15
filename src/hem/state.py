@@ -1,4 +1,4 @@
-"""State definition for the Agentic Resume Tailor graph."""
+"""State definition for the Hem graph."""
 
 from typing import Annotated
 
@@ -6,7 +6,7 @@ from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 from typing_extensions import TypedDict
 
-from agentic_resume_tailor.types import JobDetails
+from hem.types import JobDetails
 
 
 class AgentState(TypedDict, total=False):

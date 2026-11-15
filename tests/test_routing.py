@@ -2,7 +2,7 @@
 
 from langgraph.graph import END
 
-from agentic_resume_tailor.graph import after_review
+from hem.graph import after_review
 
 BASE_STATE = {
     "messages": [],

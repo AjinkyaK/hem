@@ -4,7 +4,7 @@ import os
 import re
 from pathlib import Path
 
-from agentic_resume_tailor.types import JobDetails
+from hem.types import JobDetails
 
 
 def get_default_output_dir() -> str:

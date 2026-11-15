@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from agentic_resume_tailor.types import JobDetails
+from hem.types import JobDetails
 
 
 def test_validates_complete_valid_job_details(base_job_details):

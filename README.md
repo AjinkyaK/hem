@@ -1,4 +1,4 @@
-# Agentic Resume Tailor
+# Hem
 
 A LangGraph-based workflow that tailors an Applicant's Base Resume to a Job Posting, iterating on markdown Resume Drafts through Human Review. Domain terms are defined in [`GLOSSARY.md`](GLOSSARY.md).
 

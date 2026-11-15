@@ -1,9 +1,9 @@
 """Prompt templates for resume tailoring and job details extraction."""
 
-from agentic_resume_tailor.prompts.extract_job_details import (
+from hem.prompts.extract_job_details import (
     EXTRACT_JOB_DETAILS_SYSTEM_PROMPT,
 )
-from agentic_resume_tailor.prompts.tailor_resume import (
+from hem.prompts.tailor_resume import (
     TAILOR_RESUME_SYSTEM_PROMPT,
 )
 
