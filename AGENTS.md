@@ -16,6 +16,8 @@ Single-context layout (`GLOSSARY.md` and `docs/adr/` at repo root). See `docs/ag
 
 ### Checks and merging
 
+- Before calling work done, run `uv run pre-commit run --all-files` and `uv run pytest`, and fix anything that fails.
+- Never use `--no-verify`, and never add `# type: ignore` / `# noqa` just to get past a check.
 - Never push to `main`. Open a PR; it is squash-merged once `ci` passes. Never disable the ruleset.
 
 See README `## Development`.

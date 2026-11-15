@@ -13,17 +13,40 @@ A LangGraph-based workflow that tailors an Applicant's Base Resume to a Job Post
 
 ## Development
 
+### Setup
+
 ```bash
-# Setup virtual environment and sync dependencies
 uv sync
-
-# Run tests
-uv run pytest
-
-# Lint and format
-uv run ruff check
-uv run ruff format
+uv run pre-commit install
 ```
+
+`uv sync` doesn't install the git hook, so run `uv run pre-commit install` once per clone (worktrees share it). The hook is check-only: it never rewrites files.
+
+### Checks
+
+| Command | Pre-commit hook? | CI? |
+|---|---|---|
+| `uv run ruff check` | Yes, on staged Python files | Yes |
+| `uv run ruff format --check` | Yes, on staged Python files | Yes |
+| `uv run pyright` | Yes, on the whole project | Yes |
+| `uv run pytest` | No | Yes |
+
+Tests run only in CI, to keep the hook under 3s.
+
+### Run everything locally
+
+```bash
+uv run pre-commit run --all-files
+uv run pytest
+```
+
+### Fix
+
+```bash
+uv run ruff check --fix && uv run ruff format
+```
+
+### CI
 
 The `ci` GitHub Actions job runs all four checks (`ruff check`, `ruff format --check`, `pyright`, `pytest`) on every PR and every push to `main`, and it is the required status check.
 
@@ -48,4 +71,3 @@ git push origin main
 # Re-enable it
 gh api --method PUT "repos/AjinkyaK/hem/rulesets/$RULESET_ID" -f enforcement=active
 ```
-

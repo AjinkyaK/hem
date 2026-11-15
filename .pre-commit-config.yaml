@@ -1,0 +1,23 @@
+# Check-only hooks: nothing here rewrites files. Keep the whole set under
+# about 3s, so tests never run here (CI runs them). See README "Development".
+default_install_hook_types: [pre-commit]
+
+repos:
+  - repo: local
+    hooks:
+      - id: lint
+        name: ruff check
+        entry: uv run ruff check
+        language: unsupported
+        types: [python]
+      - id: format-check
+        name: ruff format --check
+        entry: uv run ruff format --check
+        language: unsupported
+        types: [python]
+      - id: typecheck
+        name: pyright
+        entry: uv run pyright
+        language: unsupported
+        pass_filenames: false
+        always_run: true
