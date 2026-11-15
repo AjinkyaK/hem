@@ -4,7 +4,7 @@
 
 ### Issue tracker
 
-Local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+GitHub Issues on `AjinkyaK/hem`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
