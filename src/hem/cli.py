@@ -18,7 +18,7 @@ async def run_tailor(job_input: str, resume_input: str):
 
     print("🚀 Starting Hem...")
     async for event in graph.astream(initial_state, thread_config):
-        for node_name, output in event.items():
+        for node_name, _output in event.items():
             print(f"✓ Node [{node_name}] finished.")
 
     # Check for interrupts
@@ -27,14 +27,14 @@ async def run_tailor(job_input: str, resume_input: str):
         for task in state.tasks:
             for interrupt in task.interrupts:
                 print(f"\n{interrupt.value}")
-                feedback = input("\nYour response: ").strip()
+                feedback = (await asyncio.to_thread(input, "\nYour response: ")).strip()
                 await graph.aupdate_state(
                     thread_config,
                     {"user_feedback": feedback},
                     as_node="human_review",
                 )
         async for event in graph.astream(None, thread_config):
-            for node_name, output in event.items():
+            for node_name, _output in event.items():
                 print(f"✓ Node [{node_name}] finished.")
         state = await graph.aget_state(thread_config)
 

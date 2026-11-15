@@ -9,6 +9,7 @@ dist/
 *.egg-info/
 node_modules/
 .worktrees/
+.claude/worktrees/
 .DS_Store
 
 # LangGraph API
