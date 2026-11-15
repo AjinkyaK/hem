@@ -26,10 +26,10 @@ uv run pre-commit install
 
 | Command | Pre-commit hook? | CI? |
 |---|---|---|
-| `uv run ruff check` | Yes, on staged Python files | |
-| `uv run ruff format --check` | Yes, on staged Python files | |
-| `uv run pyright` | Yes, on the whole project | |
-| `uv run pytest` | No | |
+| `uv run ruff check` | Yes, on staged Python files | Yes |
+| `uv run ruff format --check` | Yes, on staged Python files | Yes |
+| `uv run pyright` | Yes, on the whole project | Yes |
+| `uv run pytest` | No | Yes |
 
 Tests run only in CI, to keep the hook under 3s.
 
@@ -45,3 +45,7 @@ uv run pytest
 ```bash
 uv run ruff check --fix && uv run ruff format
 ```
+
+### CI
+
+The `ci` GitHub Actions job runs all four checks (`ruff check`, `ruff format --check`, `pyright`, `pytest`) on every PR and every push to `main`, and it is the required status check.

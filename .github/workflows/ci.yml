@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  PYRIGHT_PYTHON_IGNORE_WARNINGS: "1"
+
+jobs:
+  # Branch protection requires a status check named after this job id; don't rename `ci`.
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # setup-uv publishes no floating major tag since v8, so pin the release tag.
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      # Installs the interpreter pinned in .python-version (3.14).
+      - run: uv python install
+
+      - run: uv sync --locked
+
+      - run: uv run ruff check
+
+      - if: ${{ !cancelled() }}
+        run: uv run ruff format --check
+
+      - if: ${{ !cancelled() }}
+        run: uv run pyright
+
+      - if: ${{ !cancelled() }}
+        run: uv run pytest
