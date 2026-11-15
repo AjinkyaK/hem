@@ -13,3 +13,10 @@ Canonical 5-role defaults (`needs-triage`, `needs-info`, `ready-for-agent`, `rea
 ### Domain docs
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at repo root). See `docs/agents/domain.md`.
+
+### Checks and merging
+
+- Before calling work done, run `uv run pre-commit run --all-files` and `uv run pytest`, and fix anything that fails.
+- Never use `--no-verify`, and never add `# type: ignore` / `# noqa` just to get past a check.
+
+See README `## Development`.
