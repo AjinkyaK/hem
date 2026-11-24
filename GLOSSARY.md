@@ -5,7 +5,7 @@ The project's goal is **Tailoring**: aligning an Applicant's Portfolio to a Job 
 ## Language
 
 **Applicant**:
-The person applying to a Job Posting, who comes away with a Resume for that application. They supply the Portfolio, Brief and Job Posting and perform Human Review.
+The person applying to a Job Posting, who comes away with a Resume for that application. They supply the Portfolio, Brief and Job Posting and accept a Resume Draft as their Resume.
 _Avoid_: candidate, user
 
 **Portfolio**:
@@ -74,7 +74,7 @@ _Avoid_: version, draft version
 
 **Review**:
 The Reviewer's check of a Resume Draft against the Portfolio and Job Details. Every Review ends in a Verdict.
-_Avoid_: judge, AI review
+_Avoid_: judge, AI review, human review
 
 **Reviewer**:
 The AI that performs Review. It is not the Applicant.
@@ -86,13 +86,6 @@ The outcome of a Review: the Resume Draft passes, or it gets a Critique.
 **Critique**:
 The Reviewer's specific, located list of what to change in a Resume Draft. Tailoring answers a Critique with the next Revision.
 _Avoid_: feedback, review comments
-
-**Human Review**:
-The pause where the Applicant reads a Resume Draft and either gives Revision Feedback or accepts it.
-
-**Revision Feedback**:
-The Applicant's instructions for changing a Resume Draft.
-_Avoid_: user feedback
 
 ## Relationships
 
@@ -111,7 +104,3 @@ Portfolio + Job Posting → Job Details → Tailoring → Resume Draft → Revie
 - Accepting a Resume Draft makes it the Resume for that Job Posting. Review does not check the Applicant's hand edits.
 - A Resume is never an input to Tailoring, not even for the same Job Posting; only the Portfolio is.
 - Lessons from hand edits go back into the Portfolio (new facts) or the Brief (targeting and style); otherwise the next Resume Draft repeats the same mistakes.
-
-## Flagged gaps
-
-- **Human Review and Revision Feedback are being retired.** Their entries, and the Applicant's "perform Human Review", stay until "What happens to the Human Review code" (#35) settles the retirement.
