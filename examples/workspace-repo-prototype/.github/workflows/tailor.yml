@@ -1,0 +1,43 @@
+# PROTOTYPE. The thin caller a real Workspace repo would hold.
+# In production `uses:` points at AjinkyaK/hem/.github/workflows/tailor.yml@<full SHA> # vX.Y.Z
+name: Tailor a resume
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job Posting URL or pasted text (prototype: 'Company | Title')"
+        required: true
+      revisions:
+        description: Max revisions
+        default: "3"
+      poor_fit_threshold:
+        description: "Poor-fit threshold (blank = more than half the must items)"
+        default: ""
+      name:
+        description: Output folder name override (same company+title collision)
+        default: ""
+      outcome:
+        description: "PROTOTYPE ONLY: what the fake hem does"
+        type: choice
+        options: [pass, not-passed, poor-fit, fail]
+        default: pass
+
+concurrency:
+  group: hem-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  tailor:
+    uses: ./.github/workflows/hem-stub.yml
+    with:
+      job: ${{ inputs.job }}
+      revisions: ${{ inputs.revisions }}
+      poor_fit_threshold: ${{ inputs.poor_fit_threshold }}
+      name: ${{ inputs.name }}
+      outcome: ${{ inputs.outcome }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

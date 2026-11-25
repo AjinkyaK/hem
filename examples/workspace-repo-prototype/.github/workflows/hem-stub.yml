@@ -1,0 +1,95 @@
+# PROTOTYPE. Stands in for hem's public reusable workflow. Real one runs in
+# `container: image: ghcr.io/ajinkyak/hem@sha256:...`; this stub runs on ubuntu.
+name: hem (stub reusable workflow)
+on:
+  workflow_call:
+    inputs:
+      job: {type: string, required: true}
+      revisions: {type: string, default: "3"}
+      poor_fit_threshold: {type: string, default: ""}
+      name: {type: string, default: ""}
+      outcome: {type: string, default: pass}
+    secrets:
+      ANTHROPIC_API_KEY: {required: false}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      JOB: ${{ inputs.job }}
+      NAME: ${{ inputs.name }}
+      OUTCOME: ${{ inputs.outcome }}
+      REVISIONS: ${{ inputs.revisions }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+
+      - name: Fake hem tailor (writes resumes/<company>/<title>/)
+        id: hem
+        run: |
+          slug() { echo "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-|-$//g'; }
+          company=$(slug "${JOB%%|*}")
+          if [[ "$JOB" == *"|"* ]]; then title=$(slug "${JOB#*|}"); else title=untitled; fi
+          [ -n "$NAME" ] && title=$(slug "$NAME")
+          out="resumes/$company/$title"
+          mkdir -p "$out"
+          echo "dir=$out" >> "$GITHUB_OUTPUT"
+          echo "branch=hem/$company/$title" >> "$GITHUB_OUTPUT"
+          stamp="$(date -u +%Y-%m-%dT%H:%M:%SZ), run ${{ github.run_number }}"
+          printf '# Job Posting\n\n%s\n\nFetched %s\n' "$JOB" "$stamp" > "$out/job-posting.md"
+          case "$OUTCOME" in
+            pass)       banner="";                        verdict="Pass";       stop="pass";;
+            not-passed) banner="> **Not passed.** Best draft after $REVISIONS revisions; see review.md."; verdict="Not passed"; stop="revision cap";;
+            poor-fit)   banner="> **Poor fit.** 3 of 5 must items are Gaps; see review.md."; verdict="Pass";  stop="pass";;
+            fail)       banner="> **No grounded draft.** Every draft had an Invented Claim."; verdict="Fail"; stop="stall";;
+          esac
+          { [ -n "$banner" ] && printf '%s\n\n' "$banner"; cat .prototype/resume.md; } > "$out/resume.md"
+          sed -E "s/^\| \*\*Verdict\*\* \|.*/| **Verdict** | $verdict |/; s/\(stopped: pass\)/(stopped: $stop)/" \
+            .prototype/review.md > "$out/review.md"
+          printf '\n<!-- %s -->\n' "$stamp" >> "$out/review.md"
+          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+          echo "hem: wrote $out (verdict: $verdict)"
+          if [ "$OUTCOME" = fail ]; then
+            echo "::error::hem: no grounded draft. Output kept as a 7-day artifact."
+            exit 1
+          fi
+
+      - name: Keep output of a failed run (private, 7 days)
+        if: failure() && steps.hem.outputs.dir != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: hem-output
+          path: ${{ steps.hem.outputs.dir }}
+          retention-days: 7
+
+      - name: Commit to fixed branch and open or update the PR
+        env:
+          DIR: ${{ steps.hem.outputs.dir }}
+          BRANCH: ${{ steps.hem.outputs.branch }}
+          VERDICT: ${{ steps.hem.outputs.verdict }}
+        run: |
+          git config user.name "hem[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add "$DIR"
+          git commit -m "hem: tailor $DIR (run ${{ github.run_number }})"
+          git push --force origin "$BRANCH"
+          body=$(sed '/^## /,$d' "$DIR/review.md")
+          body="$body"$'\n\n'"Merging this PR accepts the draft as a Resume. Full review: \`$DIR/review.md\`."
+          pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --body "$body"
+            gh pr comment "$pr" --body "Rerun ${{ github.run_number }} updated this draft."
+          else
+            draft=""; [ "$VERDICT" = "Not passed" ] && draft="--draft"
+            gh pr create --head "$BRANCH" --base "${{ github.event.repository.default_branch }}" \
+              --title "Resume: $DIR" --body "$body" $draft
+            pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+          fi
+          # Not passed -> draft (no merge button); Pass -> ready to merge.
+          if [ "$VERDICT" = "Not passed" ]; then gh pr ready "$pr" --undo || true
+          else gh pr ready "$pr" || true; fi
