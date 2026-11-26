@@ -1,0 +1,172 @@
+name: Agent implement
+
+# Runs a sandcastle coding agent on one `ready-for-agent` issue and opens a PR.
+# See README "Agent runs" for the secrets it needs and how to start it.
+#
+# Trust boundary: the agent runs in Docker with only CLAUDE_CODE_OAUTH_TOKEN.
+# AGENT_PAT stays on the host, set per step rather than for the job, and
+# checkout doesn't persist it into .git/config, which the sandbox can read.
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Issue number. Leave blank for the oldest eligible ready-for-agent issue.
+        required: false
+        type: string
+
+# One agent run at a time, queued rather than cancelled.
+concurrency:
+  group: agent-implement
+  cancel-in-progress: false
+
+# Everything that writes to GitHub uses AGENT_PAT, so that the PR triggers `ci`
+# (a PR opened with GITHUB_TOKEN doesn't).
+permissions:
+  contents: read
+
+env:
+  GH_REPO: ${{ github.repository }}
+  OUT_DIR: ${{ github.workspace }}/.sandcastle/out
+  RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+jobs:
+  implement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Pick issue
+        id: pick
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT }}
+          REQUESTED: ${{ inputs.issue }}
+        run: |
+          number=$(.sandcastle/scripts/pick-issue.sh "$REQUESTED")
+          gh issue view "$number" --json number,title,body > "$RUNNER_TEMP/issue.json"
+          title=$(jq -r .title "$RUNNER_TEMP/issue.json")
+          slug=$(tr '[:upper:]' '[:lower:]' <<<"$title" | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-40 | sed -E 's/-+$//')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "branch=agent/issue-${number}-${slug}" >> "$GITHUB_OUTPUT"
+          echo "Implementing #${number}: ${title}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Claim issue
+        id: claim
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT }}
+          ISSUE: ${{ steps.pick.outputs.number }}
+        run: gh issue edit "$ISSUE" --add-assignee @me
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - run: uv python install
+
+      - name: Image build args
+        id: ids
+        run: |
+          echo "uid=$(id -u)" >> "$GITHUB_OUTPUT"
+          echo "gid=$(id -g)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build sandbox image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: .sandcastle/Dockerfile
+          load: true
+          tags: sandcastle:hem
+          build-args: |
+            AGENT_UID=${{ steps.ids.outputs.uid }}
+            AGENT_GID=${{ steps.ids.outputs.gid }}
+          cache-from: type=gha,scope=sandcastle
+          cache-to: type=gha,scope=sandcastle,mode=max
+
+      # sandcastle copies the host's git identity into the sandbox.
+      - name: Git identity
+        run: |
+          git config --global user.name "hem-agent[bot]"
+          git config --global user.email "hem-agent[bot]@users.noreply.github.com"
+
+      - name: Run agent
+        id: agent
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ISSUE_FILE: ${{ runner.temp }}/issue.json
+          BRANCH: ${{ steps.pick.outputs.branch }}
+        run: npx tsx .sandcastle/main.mts
+
+      # Don't trust the agent's own report: re-run the checks on its branch, on
+      # the host. The worktree goes first, so the checks see only the branch.
+      - name: Verify agent's branch
+        id: verify
+        if: steps.agent.outputs.commits > 0
+        env:
+          BRANCH: ${{ steps.pick.outputs.branch }}
+        run: |
+          rm -rf .sandcastle/worktrees
+          git worktree prune
+          git checkout "$BRANCH"
+          uv sync --locked
+          set +e
+          { uv run pre-commit run --all-files && uv run pytest; } > "$OUT_DIR/checks.log" 2>&1
+          status=$?
+          set -e
+          cat "$OUT_DIR/checks.log"
+          echo "passed=$([[ $status -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Push branch and open PR
+        id: pr
+        if: steps.agent.outputs.commits > 0
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT }}
+          BRANCH: ${{ steps.pick.outputs.branch }}
+          PASSED: ${{ steps.verify.outputs.passed }}
+        run: |
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" "$BRANCH"
+
+          body="$OUT_DIR/pr-body.md"
+          draft=()
+          if [[ "$PASSED" != "true" ]]; then
+            draft=(--draft)
+            {
+              echo
+              echo "## ⚠️ Checks failed on the agent's branch"
+              echo
+              echo '<details><summary>Last 200 lines of pre-commit and pytest output</summary>'
+              echo
+              echo '```'
+              tail -n 200 "$OUT_DIR/checks.log"
+              echo '```'
+              echo
+              echo '</details>'
+            } >> "$body"
+          fi
+          printf '\n---\nOpened by an [agent run](%s).\n' "$RUN_URL" >> "$body"
+
+          gh pr create "${draft[@]}" --base main --head "$BRANCH" \
+            --title "$(cat "$OUT_DIR/pr-title.txt")" --body-file "$body"
+
+      - name: Release issue on failure
+        if: ${{ always() && steps.claim.outcome == 'success' && steps.pr.outcome != 'success' }}
+        env:
+          GH_TOKEN: ${{ secrets.AGENT_PAT }}
+          ISSUE: ${{ steps.pick.outputs.number }}
+        run: |
+          gh issue edit "$ISSUE" --remove-assignee @me
+          gh issue comment "$ISSUE" --body "An agent run ended without opening a PR. See the [run log]($RUN_URL)."
